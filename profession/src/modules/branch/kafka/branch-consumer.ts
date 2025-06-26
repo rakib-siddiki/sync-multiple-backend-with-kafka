@@ -1,13 +1,10 @@
 import { TOPICS } from "@/constant/topics";
 import { BranchModel } from "../models/branch.model";
-import { kafkaConsumerClient } from "@/config/kafka-consumer";
 import type { IBranch } from "../types/branch.type";
+import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
+import { UserModel } from "@/modules/user/models/user.model";
 
-const branchConsumerClient = kafkaConsumerClient.consumer({
-  groupId: process.env.KAFKA_CONSUMER_GROUP_ID! + "-branch",
-});
-
-const handleBranchCreate = async (branchData: any) => {
+const handleBranchCreate = async (branchData: IBranch) => {
   try {
     const newBranch = new BranchModel(branchData);
     await newBranch.save();
@@ -17,12 +14,27 @@ const handleBranchCreate = async (branchData: any) => {
       "color: inherit",
       newBranch
     );
+    
+     await UserModel.updateOne(
+        { _id: branchData.userId },
+        { $addToSet: { branch: newBranch._id } }
+      );
+      await FindProfessionModel.updateOne(
+        { _id: branchData.userId },
+        { $addToSet: { branch: newBranch._id } }
+      );
+
+    console.log(
+      "%c[SUCCESS]%c User and FindProfession updated with new branch:",
+      "color: green; font-weight: bold",
+      "color: inherit"
+    );
   } catch (err) {
     console.error("Error saving branch:", err);
   }
 };
 
-const handleBranchUpdate = async (branchData: any) => {
+const handleBranchUpdate = async (branchData: IBranch) => {
   try {
     const updated = await BranchModel.findOneAndUpdate(
       { _id: branchData._id },
@@ -31,12 +43,28 @@ const handleBranchUpdate = async (branchData: any) => {
         new: true,
       }
     );
+
     if (updated) {
       console.log(
         "%c[SUCCESS]%c Branch updated successfully:",
         "color: green; font-weight: bold",
         "color: inherit",
         updated
+      );
+
+      await UserModel.updateOne(
+        { _id: branchData.userId },
+        { $addToSet: { branch: updated._id } }
+      );
+      await FindProfessionModel.updateOne(
+        { _id: branchData.userId },
+        { $addToSet: { branch: updated._id } }
+      );
+
+      console.log(
+        "%c[SUCCESS]%c User and FindProfession updated with new branch:",
+        "color: green; font-weight: bold",
+        "color: inherit"
       );
     } else {
       console.warn("Branch not found for update:", branchData._id);
@@ -46,15 +74,31 @@ const handleBranchUpdate = async (branchData: any) => {
   }
 };
 
-const handleBranchDelete = async (branchData: any) => {
+const handleBranchDelete = async (branchData: IBranch) => {
+  console.log("🚀 ~ branchData:", branchData);
   try {
-    const deleted = await BranchModel.findOneAndDelete({ _id: branchData._id });
+    const deleted = await BranchModel.findByIdAndRemove(branchData._id);
     if (deleted) {
       console.log(
         "%c[SUCCESS]%c Branch deleted successfully:",
         "color: green; font-weight: bold",
         "color: inherit",
         deleted
+      );
+      
+       await UserModel.updateOne(
+          { _id: deleted.userId },
+          { $pull: { branch: deleted._id } }
+        );
+       await FindProfessionModel.updateOne(
+          { _id: deleted.userId },
+          { $pull: { branch: deleted._id } }
+        );
+
+      console.log(
+        "%c[SUCCESS]%c User and FindProfession updated after branch deletion:",
+        "color: green; font-weight: bold",
+        "color: inherit"
       );
     } else {
       console.warn("Branch not found for delete:", branchData._id);
@@ -70,6 +114,8 @@ export const branchConsumer = async (
   topic: TBranchTopic,
   branchData: IBranch
 ) => {
+  console.log("🚀 ~ topic:", topic);
+  console.log("🚀 ~ branchData:", branchData);
   switch (topic) {
     case TOPICS.BRANCH.CREATE:
       await handleBranchCreate(branchData);
