@@ -1,15 +1,15 @@
-import { model, Schema, Document } from 'mongoose';
-import { sendBranchCreated, sendBranchUpdated, sendBranchDeleted } from '../kafka/branch-producer';
-
-export interface IBranch extends Document {
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { model, Schema } from "mongoose";
+import {
+  sendBranchCreated,
+  sendBranchUpdated,
+  sendBranchDeleted,
+} from "../kafka/branch-producer";
+import type { IBranch } from "../types/branch.type";
 
 const branchSchema = new Schema<IBranch>(
   {
     name: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   {
     timestamps: true,
@@ -17,18 +17,18 @@ const branchSchema = new Schema<IBranch>(
 );
 
 branchSchema.post("save", async (doc) => {
-    console.log(`Branch created: ${doc.name}`);
-    await sendBranchCreated(doc);
-  });
+  console.log(`Branch created: ${doc.name}`);
+  await sendBranchCreated(doc);
+});
 
 branchSchema.post("findOneAndUpdate", async (doc) => {
-    console.log(`Branch updated: ${doc.name}`);
-    await sendBranchUpdated(doc);
-  });
+  console.log(`Branch updated: ${doc.name}`);
+  await sendBranchUpdated(doc);
+});
 
-branchSchema.post("findOneAndDelete", async (doc) => {
-    console.log(`Branch deleted: ${doc.name}`);
-    await sendBranchDeleted(doc);
-  });
+branchSchema.post("findOneAndRemove", async (doc) => {
+  console.log(`Branch deleted: ${doc.name}`);
+  await sendBranchDeleted(doc);
+});
 
-export const BranchModel = model<IBranch>('Branch', branchSchema);
+export const BranchModel = model<IBranch>("Branch", branchSchema);
