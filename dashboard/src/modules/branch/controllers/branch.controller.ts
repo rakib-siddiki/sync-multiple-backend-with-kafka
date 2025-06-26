@@ -85,8 +85,8 @@ export const deleteBranch = async (req: Request, res: Response, next: NextFuncti
     if (!deleted) {
       return res.status(404).json({ error: 'Branch not found' });
     }
-    
-    res.status(204).send();
+
+    res.status(200).send({ message: 'Branch deleted successfully' });
   } catch (err) {
     next(err);
   }

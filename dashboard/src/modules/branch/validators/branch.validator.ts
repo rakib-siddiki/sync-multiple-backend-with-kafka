@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
 export const createBranchSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters'),
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be at most 50 characters"),
+  userId: z.string().min(1, "User ID is required"),
 });
 
 export const updateBranchSchema = z.object({
