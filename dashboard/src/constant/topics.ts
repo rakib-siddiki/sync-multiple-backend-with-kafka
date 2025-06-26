@@ -14,4 +14,10 @@ export const TOPICS = {
     UPDATE: "schedule.update",
     DELETE: "schedule.delete",
   },
+  NOTIFICATION: {
+    CREATE: "notification.create",
+    UPDATE: "notification.update",
+    DELETE: "notification.delete",
+  },
 } as const;
+

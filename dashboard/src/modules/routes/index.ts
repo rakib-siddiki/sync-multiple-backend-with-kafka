@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { branchRoutes } from "../branch/routes/branch.route";
 import { scheduleRoutes } from "../schedule/routes/schedule.route";
 import { userRoutes } from "../user/routes/user.route";
+import {notificationRoutes} from "../notification/routes/notification.route"
 
 const router = Router();
 
@@ -21,6 +22,10 @@ const moduleRoutes = [
   {
     path: "/schedules",
     module: scheduleRoutes,
+  },
+  {
+    path: "/notifications",
+    module: notificationRoutes,
   },
 ];
 
