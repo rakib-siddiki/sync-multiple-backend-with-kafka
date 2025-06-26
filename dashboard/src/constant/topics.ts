@@ -9,4 +9,9 @@ export const TOPICS = {
     UPDATE: "branch.update",
     DELETE: "branch.delete",
   },
-} as const 
+  SCHEDULE: {
+    CREATE: "schedule.create",
+    UPDATE: "schedule.update",
+    DELETE: "schedule.delete",
+  },
+} as const;
