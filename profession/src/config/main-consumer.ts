@@ -9,25 +9,38 @@ const consumer = kafkaConsumerClient.consumer({
 });
 
 // Helper to add topic handlers for a group, with correct type casting
-function addTopicHandlers<T extends Record<string, string>,D>(
-    map: Map<string, (data: D) => Promise<void>>,
-    topics: T,
-    handler: (topic: any, data: D) => Promise<void>
-  ) {
-    Object.values(topics).forEach((t) => {
-      map.set(t, (data: D) => handler(t, data));
-    });
-  }
+function addTopicHandlers<T extends Record<string, string>, D>(
+  map: Map<string, (data: D) => Promise<void>>,
+  topics: T,
+  handler: (topic: string, data: D) => Promise<void>
+) {
+  Object.values(topics).forEach((t) => {
+    map.set(t, (data: D) => handler(t, data));
+  });
+}
 
-  // Handler function to build the topic handler map with minimal duplication
-  function buildTopicHandlerMap() {
-    const map = new Map<string, (data: unknown) => Promise<void>>();
-    addTopicHandlers(map, TOPICS.BRANCH, branchConsumer);
-    addTopicHandlers(map, TOPICS.USER, userConsumer);
-    addTopicHandlers(map, TOPICS.NOTIFICATION, notificationConsumer);
-    return map;
-  }
-  
+// Handler function to build the topic handler map with minimal duplication
+// This function creates a map of topic handlers for O(1) lookup
+function buildTopicHandlerMap() {
+  const map = new Map<string, (data: unknown) => Promise<void>>();
+  addTopicHandlers(
+    map,
+    TOPICS.BRANCH,
+    branchConsumer as (topic: string, data: unknown) => Promise<void>
+  );
+  addTopicHandlers(
+    map,
+    TOPICS.USER,
+    userConsumer as (topic: string, data: unknown) => Promise<void>
+  );
+  addTopicHandlers(
+    map,
+    TOPICS.NOTIFICATION,
+    notificationConsumer as (topic: string, data: unknown) => Promise<void>
+  );
+  return map;
+}
+
 // Main consumer function to connect and listen for messages
 // This function will subscribe to all topics in TOPIC_LIST and handle messages accordingly
 export const mainConsumer = async () => {
