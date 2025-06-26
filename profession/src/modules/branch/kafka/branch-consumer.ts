@@ -1,6 +1,7 @@
 import { TOPICS } from "@/constant/topics";
 import { BranchModel } from "../models/branch.model";
 import { kafkaConsumerClient } from "@/config/kafka-consumer";
+import type { IBranch } from "../types/branch.type";
 
 const branchConsumerClient = kafkaConsumerClient.consumer({
   groupId: process.env.KAFKA_CONSUMER_GROUP_ID! + "-branch",
@@ -63,39 +64,24 @@ const handleBranchDelete = async (branchData: any) => {
   }
 };
 
-export const branchConsumer = async () => {
-  try {
-    await branchConsumerClient.connect();
-    // Subscribe to all topics in TOPICS
-    for (const topic of Object.values(TOPICS.BRANCH)) {
-      console.log("🚀 ~ topic:", topic);
-      await branchConsumerClient.subscribe({ topic, fromBeginning: true });
-    }
+export type TBranchTopic = (typeof TOPICS.BRANCH)[keyof typeof TOPICS.BRANCH];
 
-    await branchConsumerClient.run({
-      eachMessage: async ({ topic, message }) => {
-        console.log("🚀 ~ topic:", topic);
-        if (!message.value) {
-          return;
-        }
-        const branchData = JSON.parse(message.value?.toString());
-        switch (topic) {
-          case TOPICS.BRANCH.CREATE:
-            await handleBranchCreate(branchData);
-            break;
-          case TOPICS.BRANCH.UPDATE:
-            await handleBranchUpdate(branchData);
-            break;
-          case TOPICS.BRANCH.DELETE:
-            await handleBranchDelete(branchData);
-            break;
-          // Add more cases for other topics as needed
-          default:
-            console.warn(`Unhandled topic: ${topic}`);
-        }
-      },
-    });
-  } catch (error) {
-    console.error("Error connecting to Kafka:", error);
+export const branchConsumer = async (
+  topic: TBranchTopic,
+  branchData: IBranch
+) => {
+  switch (topic) {
+    case TOPICS.BRANCH.CREATE:
+      await handleBranchCreate(branchData);
+      break;
+    case TOPICS.BRANCH.UPDATE:
+      await handleBranchUpdate(branchData);
+      break;
+    case TOPICS.BRANCH.DELETE:
+      await handleBranchDelete(branchData);
+      break;
+    // Add more cases for other topics as needed
+    default:
+      console.warn(`Unhandled topic: ${topic}`);
   }
 };

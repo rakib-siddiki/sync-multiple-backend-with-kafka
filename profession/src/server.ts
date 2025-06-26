@@ -1,8 +1,7 @@
 import express from "express";
 import { connectDB } from "@/helpers/db-connect";
 import globalRouter from "@modules/routes";
-import { userConsumer } from "./modules/user/kafka/user-consumer";
-import { branchConsumer } from "./modules/branch/kafka/branch-consumer";
+import { mainConsumer } from "./config/main-consumer";
 
 const app = express();
 app.use(express.json());
@@ -13,13 +12,10 @@ app.use((req, _, next) => {
   next();
 });
 
-userConsumer().catch(console.error);
-branchConsumer().catch(console.error);
+mainConsumer().catch(console.error);
 
 // Global routes
 app.use("/api/v1", globalRouter);
-
-
 
 connectDB().then(() => {
   const port = process.env.PORT ?? 4000;
