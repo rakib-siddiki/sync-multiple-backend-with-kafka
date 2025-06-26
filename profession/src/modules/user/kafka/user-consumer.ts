@@ -1,34 +1,51 @@
 import { TOPICS } from "@/constant/topics";
 import { UserModel } from "../models/user.model";
 import type { IUser } from "../types/user.type";
+import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
+import { Types } from "mongoose";
 
 export type TUserTopic = (typeof TOPICS.USER)[keyof typeof TOPICS.USER];
 
 const handleUserCreate = async (userData: IUser) => {
   try {
     const newUser = new UserModel(userData);
-    await newUser.save();
-    console.log("User saved to database:", newUser);
+    const savedUser = await newUser.save();
+    console.log(" ✅ User saved to database:", savedUser._id);
+   const findProfession = await FindProfessionModel.create({
+      _id: savedUser._id,
+      name: savedUser.name,
+      email: savedUser.email,
+    });
+   console.log("🚀 ~ findProfession:", findProfession)
   } catch (err) {
-    console.error("Error saving user:", err);
+    console.error("❌ Error saving user:", err);
   }
 };
 
 const handleUserUpdate = async (userData: IUser) => {
   try {
-    await UserModel.findByIdAndUpdate(userData._id, userData, { new: true });
-    console.log("User updated in database:", userData._id);
+    await UserModel.findOneAndUpdate({ _id: userData._id }, userData, {
+      new: true,
+    });
+    console.log(" ✅ User updated in database:", userData._id);
+    await FindProfessionModel.updateOne(
+      { _id: userData._id },
+      { name: userData.name, email: userData.email }
+    ).catch((err) => {
+      console.error(" ❌ Error updating FindProfession:", err);
+    });
   } catch (err) {
-    console.error("Error updating user:", err);
+    console.error("❌ Error updating user:", err);
   }
 };
 
 const handleUserDelete = async (userData: IUser) => {
   try {
     await UserModel.findByIdAndDelete(userData._id);
-    console.log("User deleted from database:", userData._id);
+    console.log(" ✅ User deleted from database:", userData._id);
+    await FindProfessionModel.deleteOne({ _id: userData._id });
   } catch (err) {
-    console.error("Error deleting user:", err);
+    console.error("❌ Error deleting user:", err);
   }
 };
 
