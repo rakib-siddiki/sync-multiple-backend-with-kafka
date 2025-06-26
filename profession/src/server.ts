@@ -3,6 +3,7 @@ import { connectDB } from "@/helpers/db-connect";
 import globalRouter from "@modules/routes";
 import { userConsumer } from "./modules/user/kafka/user-consumer";
 import { branchConsumer } from "./modules/branch/kafka/branch-consumer";
+import { notificationConsumer } from "./modules/notification/kafka/notification-consumer";
 
 const app = express();
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use((req, _, next) => {
 
 userConsumer().catch(console.error);
 branchConsumer().catch(console.error);
+notificationConsumer().catch(console.error);
 
 // Global routes
 app.use("/api/v1", globalRouter);
