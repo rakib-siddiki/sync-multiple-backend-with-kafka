@@ -9,6 +9,11 @@ export const TOPICS = {
     UPDATE: "branch.update",
     DELETE: "branch.delete",
   },
+  NOTIFICATION: {
+    CREATE: "notification.create",
+    UPDATE: "notification.update",
+    DELETE: "notification.delete",
+  },
 } as const;
 
 // Recursive type to extract all string values from a nested object
