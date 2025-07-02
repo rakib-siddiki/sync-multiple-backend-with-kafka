@@ -1,8 +1,9 @@
 import { TOPIC_LIST, TOPICS } from "@/constant/topics";
-import { kafkaConsumerClient } from "./kafka-consumer";
 import { branchConsumer } from "@/modules/branch/kafka/branch-consumer";
-import { userConsumer } from "@/modules/user/kafka/user-consumer";
 import { notificationConsumer } from "@/modules/notification/kafka/notification-consumer";
+import { scheduleConsumer } from "@/modules/schedule/kafka/schedule-consumer";
+import { userConsumer } from "@/modules/user/kafka/user-consumer";
+import { kafkaConsumerClient } from "./kafka-consumer";
 
 const consumer = kafkaConsumerClient.consumer({
   groupId: process.env.KAFKA_CONSUMER_GROUP_ID!,
@@ -37,6 +38,11 @@ function buildTopicHandlerMap() {
     map,
     TOPICS.NOTIFICATION,
     notificationConsumer as (topic: string, data: unknown) => Promise<void>
+  );
+  addTopicHandlers(
+    map,
+    TOPICS.SCHEDULE,
+    scheduleConsumer as (topic: string, data: unknown) => Promise<void>
   );
   return map;
 }
