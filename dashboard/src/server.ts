@@ -1,6 +1,7 @@
 import express from "express";
 import { connectDB } from "@/helpers/db-connect";
 import globalRouter from "@modules/routes";
+import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
 app.use(express.json());
@@ -14,7 +15,8 @@ app.use((req, _, next) => {
 // Global routes
 app.use("/api/v1", globalRouter);
 
-
+// Error handling middleware
+app.use(errorMiddleware);
 
 connectDB().then(() => {
   const port = process.env.PORT ?? 5000;
