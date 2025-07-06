@@ -1,7 +1,7 @@
-import express from "express";
 import { connectDB } from "@/helpers/db-connect";
 import globalRouter from "@modules/routes";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import express from "express";
 
 const app = express();
 app.use(express.json());
