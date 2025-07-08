@@ -28,15 +28,3 @@ services:
       KAFKA_CREATE_TOPICS: "payment-events:1:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "8080:27017"
-    volumes:
-      - mongodb_data:/data/db
-    command: mongod --quiet --logpath /dev/null
-    restart: always
-
-volumes:
-  mongodb_data:
