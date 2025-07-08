@@ -2,6 +2,7 @@ import express from "express";
 import { connectDB } from "@/helpers/db-connect";
 import globalRouter from "@modules/routes";
 import { mainConsumer } from "./config/main-consumer";
+import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,8 @@ mainConsumer().catch(console.error);
 
 // Global routes
 app.use("/api/v1", globalRouter);
+
+app.use(errorMiddleware);
 
 connectDB().then(() => {
   const port = process.env.PORT ?? 4000;
