@@ -5,6 +5,7 @@ import {
   sendBranchDeleted,
 } from "../kafka/branch-producer";
 import type { IBranch } from "../types/branch.type";
+import { setupChangeStreamWatcher } from "../../../utils/change-stream-watcher";
 
 const branchSchema = new Schema<IBranch>(
   {
@@ -16,19 +17,17 @@ const branchSchema = new Schema<IBranch>(
   }
 );
 
-branchSchema.post("save", async (doc) => {
-  console.log(`Branch created: ${doc.name}`);
-  await sendBranchCreated(doc);
-});
-
-branchSchema.post("findOneAndUpdate", async (doc) => {
-  console.log(`Branch updated: ${doc.name}`);
-  await sendBranchUpdated(doc);
-});
-
-branchSchema.post("findOneAndRemove", async (doc) => {
-  console.log(`Branch deleted: ${doc.name}`);
-  await sendBranchDeleted(doc);
-});
-
 export const BranchModel = model<IBranch>("Branch", branchSchema);
+
+// Set up change stream watcher for the Branch collection
+setupChangeStreamWatcher(BranchModel, {
+  onInsert: async (document) => {
+    await sendBranchCreated(document);
+  },
+  onUpdate: async (document) => {
+    await sendBranchUpdated(document);
+  },
+  onDelete: async (documentKey) => {
+    await sendBranchDeleted({ _id: documentKey._id } as IBranch);
+  },
+});
