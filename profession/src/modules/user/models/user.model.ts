@@ -3,10 +3,19 @@ import { IUser } from "../types/user.type";
 
 const userSchema: Schema<IUser> = new Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    branch: [{ type: String, ref: "Branch" }],
+    username: { type: String, required: true, unique: true },
+    profile_photo_src: { type: String, default: "" },
+    status: { type: String, default: "pending" },
+    practitioner: {
+      type: Schema.Types.ObjectId,
+      ref: "Practitioner",
+      default: null,
+    },
+    organization: {
+      type: Schema.Types.ObjectId,
+      ref: "Organization",
+      default: null,
+    },
   },
   {
     timestamps: true,

@@ -1,10 +1,11 @@
-import { Document } from "mongoose";
+import { Document, type ObjectId } from "mongoose";
 
 export interface IUser extends Document {
-  name: string;
-  email: string;
-  password: string;
-  branch: string[]; // Assuming branch is an array of strings, change to ObjectId if needed
+  username: string
+  profile_photo_src: string
+  status: string
+  practitioner: ObjectId | null;
+  organization: ObjectId | null;
   createdAt: Date;
   updatedAt: Date;
 }
