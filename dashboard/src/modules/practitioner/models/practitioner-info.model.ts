@@ -1,6 +1,6 @@
 import { model, Schema, Types } from "mongoose";
 
-const PractitionerInfoSchemaExpress = new Schema(
+const PractitionerInfoSchema = new Schema(
   {
     category: { type: String, default: "" },
     sub_category: { type: String, default: "" },
@@ -55,6 +55,6 @@ const PractitionerInfoSchemaExpress = new Schema(
   { timestamps: true }
 );
 
-PractitionerInfoSchemaExpress.index({ practitioner: 1 });
+PractitionerInfoSchema.index({ practitioner: 1 });
 
-module.exports = model("PractitionerInfo", PractitionerInfoSchemaExpress);
+export const PractitionerInfoModel = model("PractitionerInfo", PractitionerInfoSchema);

@@ -1,11 +1,10 @@
 import { model, Schema, Types } from "mongoose";
 
-const PractitionerAccountSchema = new Schema(
+const OrganizationAccountSchema = new Schema(
   {
-    display_name: { type: String, default: "" },
+    legal_name: { type: String, default: "" },
     description: { type: String, default: "" },
     website: { type: String, default: "" },
-    location: { type: String, default: "" },
     country: { type: String, default: "" },
     language: { type: String, default: "" },
     time_zone: { type: String, default: "" },
@@ -13,21 +12,19 @@ const PractitionerAccountSchema = new Schema(
     phone_number: { type: String, default: "" },
     customer_alias: { type: String, default: "" },
     service_alias: { type: String, default: "" },
+    practitioner_alias: { type: String, default: "" },
+    business_role: { type: String, default: "" },
+    shop: { type: Boolean, default: false },
     secure_mode: { type: Boolean, default: false },
-    practitioner_info: {
-      type: Types.ObjectId,
-      default: null,
-      ref: "PractitionerInfo",
-    },
-    practitioner: { type: Types.ObjectId, default: null, ref: "Practitioner" },
+    delete_after: { type: String, default: "" },
+    organization: { type: Types.ObjectId, ref: "Organization", default: null },
   },
   { timestamps: true }
 );
 
-PractitionerAccountSchema.index({ practitioner: 1 });
-PractitionerAccountSchema.index({ practitioner_info: 1 });
+OrganizationAccountSchema.index({ organization: 1 });
 
-export const PractitionerAccountModel = model(
-  "PractitionerAccount",
-  PractitionerAccountSchema
+export const OrganizationAccountModel = model(
+  "OrganizationAccount",
+  OrganizationAccountSchema
 );

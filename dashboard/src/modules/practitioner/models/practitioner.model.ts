@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-const { Schema, Types } = mongoose;
+import { model, Schema, Types } from "mongoose";
 
 const PractitionerSchema = new Schema(
   {
@@ -29,4 +28,4 @@ PractitionerSchema.index({ practitioner_info: 1 });
 PractitionerSchema.index({ practitioner_account: 1 });
 PractitionerSchema.index({ user: 1 });
 
-module.exports = mongoose.model("Practitioner", PractitionerSchema);
+export const PractitionerModel = model("Practitioner", PractitionerSchema);

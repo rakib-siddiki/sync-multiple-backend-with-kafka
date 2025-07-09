@@ -2,7 +2,13 @@ import { Document, type ObjectId } from "mongoose";
 
 export interface IBranch extends Document {
   name: string;
-  userId: ObjectId
+  status: 'active' | 'inactive';
+  orgId?: ObjectId;
+  pracId?: ObjectId;
+  position: number;
+  branch_info: ObjectId;
+  organization: ObjectId;
+  practitioner: ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
