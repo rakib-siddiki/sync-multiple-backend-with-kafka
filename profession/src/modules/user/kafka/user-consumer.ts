@@ -8,9 +8,11 @@ export type TUserTopic = (typeof TOPICS.USER)[keyof typeof TOPICS.USER];
 const handleUserCreate = async (userData: IUser) => {
   try {
     const newUser = new UserModel(userData);
-    const savedUser = await newUser.save();
+    const savedUser = await newUser.save().then((user) => {
+      return user.populate(["organization practitioner"]);
+    });
     console.log(" ✅ User saved to database:", savedUser._id);
-    const findProfession = await FindProfessionModel.create({
+    const findProfessionData = {
       _id: savedUser._id,
       type: savedUser.organization ? "Organization" : "Practitioner",
       organization: savedUser.organization,
@@ -18,7 +20,25 @@ const handleUserCreate = async (userData: IUser) => {
       status: savedUser.status,
       username: savedUser.username,
       photoUrl: savedUser.profile_photo_src,
-    });
+    };
+    
+    const findProfession = new FindProfessionModel(findProfessionData);
+    if (
+      savedUser.organization &&
+      typeof savedUser.organization === "object" &&
+      "full_name" in savedUser.organization
+    ) {
+      findProfession.orgName = savedUser.organization.full_name;
+    }
+    if (
+      savedUser.practitioner &&
+      typeof savedUser.practitioner === "object" &&
+      "full_name" in savedUser.practitioner
+    ) {
+      findProfession.practitionerName = savedUser.practitioner.full_name;
+    }
+
+    await findProfession.save();
     console.log("🚀 ~ findProfession:", findProfession);
   } catch (err) {
     console.error("❌ Error saving user:", err);

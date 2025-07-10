@@ -1,7 +1,6 @@
 import { UserModel } from "../models/user.model";
-import { CreateUserInput, UpdateUserInput } from "../validators/user.validate";
 
-export const createUser = async (input: CreateUserInput) => {
+export const createUser = async (input: any) => {
   const user = await UserModel.create(input);
   return user;
 };
@@ -10,7 +9,8 @@ export const getAllUsers = async () => {
   return UserModel.find();
 };
 
-export const updateUser = async (userId: string, input: UpdateUserInput) => {
+export const updateUser = async (userId: string, input: any) => {
+  console.log("🚀 ~ input:", input)
   const user = await UserModel.findOneAndUpdate(
     { _id: userId },
     { $set: input },

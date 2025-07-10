@@ -30,7 +30,7 @@ const moduleRoutes = [
     module: notificationRoutes,
   },
   {
-    path: "/practitioner",
+    path: "/practitioners",
     module: practitionerRoute,
   },
   {

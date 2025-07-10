@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import * as userService from "../services/user.service";
-import { updateUserSchema } from "../validators/user.validate";
 
 export const createUser = async (
   req: Request,
@@ -22,15 +21,7 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.params;
-
-    // @ts-ignore
-    const parsed = updateUserSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ error: parsed.error.errors });
-    }
-
-    const user = await userService.updateUser(id, parsed.data);
+    const user = await userService.updateUser(req.params.id, req.body);
     res.json({ data: user });
   } catch (err) {
     next(err);
