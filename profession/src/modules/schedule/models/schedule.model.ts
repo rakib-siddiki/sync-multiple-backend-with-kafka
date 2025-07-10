@@ -2,20 +2,20 @@ import { Document, model, Schema } from "mongoose";
 
 export interface ISchedule extends Document {
   date: Date;
-  startTime: string;
-  endTime: string;
-  scheduleType: "dedicated" | "class_schedule" | "open_for_slot";
+  start_time: string;
+  end_time: string;
+  schedule_type: "dedicated" | "class_schedule" | "open_for_slot";
   services: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 const scheduleSchema = new Schema<ISchedule>(
   {
     date: { type: Date, required: true },
-    startTime: { type: String, required: true },
-    endTime: { type: String, required: true },
-    scheduleType: { type: String, required: true },
+    start_time: { type: String, required: true },
+    end_time: { type: String, required: true },
+    schedule_type: { type: String, required: true },
     services: { type: [String], required: true },
   },
   {

@@ -8,6 +8,6 @@ export interface IPractitioner {
   practitioner_account: string | null; // ObjectId as string
   user: string | null; // ObjectId as string
   branding: string | null; // ObjectId as string
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }

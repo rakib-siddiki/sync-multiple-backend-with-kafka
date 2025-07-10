@@ -8,6 +8,6 @@ export interface IUser extends Document {
   status: string;
   practitioner: ObjectId | null | IPractitioner;
   organization: ObjectId | null | IOrganization;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }

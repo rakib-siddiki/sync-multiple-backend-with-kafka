@@ -21,24 +21,8 @@ const handleUserCreate = async (userData: IUser) => {
       username: savedUser.username,
       photoUrl: savedUser.profile_photo_src,
     };
-    
-    const findProfession = new FindProfessionModel(findProfessionData);
-    if (
-      savedUser.organization &&
-      typeof savedUser.organization === "object" &&
-      "full_name" in savedUser.organization
-    ) {
-      findProfession.orgName = savedUser.organization.full_name;
-    }
-    if (
-      savedUser.practitioner &&
-      typeof savedUser.practitioner === "object" &&
-      "full_name" in savedUser.practitioner
-    ) {
-      findProfession.practitionerName = savedUser.practitioner.full_name;
-    }
 
-    await findProfession.save();
+    const findProfession = await FindProfessionModel.create(findProfessionData);
     console.log("🚀 ~ findProfession:", findProfession);
   } catch (err) {
     console.error("❌ Error saving user:", err);

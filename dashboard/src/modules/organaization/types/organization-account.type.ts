@@ -16,6 +16,6 @@ export interface IOrganizationAccount {
   secure_mode: boolean;
   delete_after: string;
   organization: string | null;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }

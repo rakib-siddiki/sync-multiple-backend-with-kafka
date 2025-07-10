@@ -33,6 +33,6 @@ export interface IPractitionerInfo {
   field_of_practice: IFieldOfPractice[];
   certificates_or_awards: ICertificateOrAward[];
   working_history: IWorkingHistory[];
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }

@@ -13,6 +13,6 @@ export interface IPractitionerAccount {
   secure_mode: boolean;
   practitioner_info: string | null; // ObjectId as string
   practitioner: string | null; // ObjectId as string
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }

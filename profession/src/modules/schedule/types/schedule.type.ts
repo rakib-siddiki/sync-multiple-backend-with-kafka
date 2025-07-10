@@ -2,10 +2,10 @@ import { Document } from "mongoose";
 
 export interface ISchedule extends Document {
   date: Date;
-  startTime: string;
-  endTime: string;
-  scheduleType: "dedicated" | "class_schedule" | "open_for_slot";
+  start_time: string;
+  end_time: string;
+  schedule_type: "dedicated" | "class_schedule" | "open_for_slot";
   services: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }

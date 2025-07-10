@@ -4,18 +4,23 @@ import { notificationConsumer } from "@/modules/notification/kafka/notification-
 import { scheduleConsumer } from "@/modules/schedule/kafka/schedule-consumer";
 import { userConsumer } from "@/modules/user/kafka/user-consumer";
 import { kafkaConsumerClient } from "./kafka-consumer";
+import { orgConsumer } from "@/modules/organization/kafka/organization-consumer";
 
 const consumer = kafkaConsumerClient.consumer({
   groupId: process.env.KAFKA_CONSUMER_GROUP_ID!,
 });
 
-// Helper to add topic handlers for a group, with correct type casting
-function addTopicHandlers<T extends Record<string, string>, D>(
-  map: Map<string, (data: D) => Promise<void>>,
+// Helper to add topic handlers for a group, with correct type inference
+function addTopicHandlers<
+  T extends Record<string, string>,
+  TopicType extends T[keyof T],
+  D
+>(
+  map: Map<TopicType, (data: D) => Promise<void>>,
   topics: T,
-  handler: (topic: string, data: D) => Promise<void>
+  handler: (topic: TopicType, data: D) => Promise<void>
 ) {
-  Object.values(topics).forEach((t) => {
+  (Object.values(topics) as TopicType[]).forEach((t) => {
     map.set(t, (data: D) => handler(t, data));
   });
 }
@@ -23,27 +28,12 @@ function addTopicHandlers<T extends Record<string, string>, D>(
 // Handler function to build the topic handler map with minimal duplication
 // This function creates a map of topic handlers for O(1) lookup
 function buildTopicHandlerMap() {
-  const map = new Map<string, (data: unknown) => Promise<void>>();
-  addTopicHandlers(
-    map,
-    TOPICS.BRANCH,
-    branchConsumer as (topic: string, data: unknown) => Promise<void>
-  );
-  addTopicHandlers(
-    map,
-    TOPICS.USER,
-    userConsumer as (topic: string, data: unknown) => Promise<void>
-  );
-  addTopicHandlers(
-    map,
-    TOPICS.NOTIFICATION,
-    notificationConsumer as (topic: string, data: unknown) => Promise<void>
-  );
-  addTopicHandlers(
-    map,
-    TOPICS.SCHEDULE,
-    scheduleConsumer as (topic: string, data: unknown) => Promise<void>
-  );
+  const map = new Map();
+  addTopicHandlers(map, TOPICS.BRANCH, branchConsumer);
+  addTopicHandlers(map, TOPICS.USER, userConsumer);
+  addTopicHandlers(map, TOPICS.NOTIFICATION, notificationConsumer);
+  addTopicHandlers(map, TOPICS.SCHEDULE, scheduleConsumer);
+  addTopicHandlers(map, TOPICS.ORG, orgConsumer);
   return map;
 }
 

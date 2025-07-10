@@ -9,9 +9,9 @@ import type { ISchedule } from "../types/schedule.type";
 const scheduleSchema = new Schema<ISchedule>(
   {
     date: { type: Date, required: true },
-    startTime: { type: String, required: true },
-    endTime: { type: String, required: true },
-    scheduleType: { type: String, required: true },
+    start_time: { type: String, required: true },
+    end_time: { type: String, required: true },
+    schedule_type: { type: String, required: true },
     services: { type: [String], required: true },
   },
   {

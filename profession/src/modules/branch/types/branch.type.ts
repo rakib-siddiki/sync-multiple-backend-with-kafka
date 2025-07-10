@@ -9,6 +9,6 @@ export interface IBranch extends Document {
   branch_info: ObjectId;
   organization: ObjectId;
   practitioner: ObjectId;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }

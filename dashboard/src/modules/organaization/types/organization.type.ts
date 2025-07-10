@@ -10,6 +10,6 @@ export interface IOrganization {
   organization_account: string | null;
   user: string | null;
   branch: string | null;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }

@@ -14,6 +14,6 @@ export interface IInvitedPractitioner {
   practitioner: string | null; // ObjectId as string
   organization: string | null; // ObjectId as string
   join_date: Date | null;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }

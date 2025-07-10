@@ -7,18 +7,18 @@ export interface IFindProfession {
   practitioner: ObjectId | null;
   status?: string;
   username: string;
-  businessUrl: string;
-  practitionerName: string;
-  orgName: string;
-  photoUrl?: string;
+  business_url: string;
+  practitioner_name: string;
+  org_name: string;
+  photo_url?: string;
   category: string;
-  subCategory: string[];
-  listOfDegrees: string[];
+  sub_category: string[];
+  list_of_degrees: string[];
   ranking: number;
   rating: number;
-  totalAppointment: number;
+  total_appointment: number;
   zone: string[];
   city: string[];
   address: string[];
-  areaOfPractice: string;
+  area_of_practice: string;
 }

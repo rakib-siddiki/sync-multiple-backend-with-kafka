@@ -9,8 +9,8 @@ export interface INotification extends Document {
   title: string;
   message: string;
   date: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 const notificationSchema = new Schema<INotification>(

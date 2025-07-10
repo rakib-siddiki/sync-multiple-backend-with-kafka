@@ -17,6 +17,6 @@ export interface IUser extends Document {
   practitioner: ObjectId;
   organization: ObjectId;
   invited_practitioner: ObjectId[];
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
