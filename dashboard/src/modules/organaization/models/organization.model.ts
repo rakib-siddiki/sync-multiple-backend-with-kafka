@@ -1,6 +1,7 @@
 import { model, Schema, Types } from "mongoose";
+import type { IOrganization } from "../types/organization.type";
 
-const OrganizationSchema = new Schema(
+const OrganizationSchema = new Schema<IOrganization>(
   {
     full_name: { type: String, default: "" },
     business_url: { type: String, default: "", unique: true },
