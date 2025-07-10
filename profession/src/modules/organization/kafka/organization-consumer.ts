@@ -1,21 +1,46 @@
 import { TOPICS } from "@/constant/topics";
 import type { IOrganization } from "../types/organization.types";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
+import { OrganizationModel } from "../models/organization.model";
 
 const handleOrgCreate = async (orgData: IOrganization) => {
   try {
-    const findProfession = await FindProfessionModel.findOneAndUpdate(
+    await OrganizationModel.create(orgData);
+  } catch (error) {
+    console.error("Error handling organization creation:", error);
+  }
+};
+
+const handleOrgUpdate = async (orgData: IOrganization) => {
+  try {
+    const updatedOrg = await OrganizationModel.findOneAndUpdate(
+      { _id: orgData._id },
+      orgData,
       {
-        organization: orgData._id,
+        new: true,
+      }
+    );
+    if (!updatedOrg) {
+      console.warn(`Organization with ID ${orgData._id} not found for update.`);
+      return;
+    }
+
+    // Create or update the FindProfessionModel entry for the organization
+    await FindProfessionModel.findOneAndUpdate(
+      {
+        organization: updatedOrg._id,
       },
       {
-        organization: orgData._id,
         orgName: orgData.full_name,
         business_url: orgData.business_url,
         category: orgData.category,
-        sub_category: orgData.sub_category,
-        user: orgData.user,
-        branch: orgData.branch,
+        $addToSet: {
+          sub_category: {
+            $each: Array.isArray(orgData.sub_category)
+              ? orgData.sub_category
+              : [orgData.sub_category],
+          },
+        },
       },
       {
         upsert: true,
@@ -26,8 +51,6 @@ const handleOrgCreate = async (orgData: IOrganization) => {
     console.error("Error handling organization creation:", error);
   }
 };
-
-const handleOrgUpdate = async (orgData: IOrganization) => {};
 
 const handleOrgDelete = async (orgData: IOrganization) => {};
 

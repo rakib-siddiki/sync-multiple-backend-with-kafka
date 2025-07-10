@@ -4,7 +4,8 @@ import { scheduleRoutes } from "../schedule/routes/schedule.route";
 import { userRoutes } from "../user/routes/user.route";
 import { notificationRoutes } from "../notification/routes/notification.route";
 import { practitionerRoute } from "../practitioner/routes/practitioner.route";
-import organizationRoutes from "../organaization/routes/organization.routes";
+import { organizationRoutes } from "../organization/routes/organization.route";
+
 
 const router = Router();
 

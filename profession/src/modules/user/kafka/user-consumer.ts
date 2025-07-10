@@ -2,6 +2,7 @@ import { TOPICS } from "@/constant/topics";
 import { UserModel } from "../models/user.model";
 import type { IUser } from "../types/user.type";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
+import { OrganizationModel } from "@/modules/organization/models/organization.model";
 
 export type TUserTopic = (typeof TOPICS.USER)[keyof typeof TOPICS.USER];
 
@@ -11,6 +12,10 @@ const handleUserCreate = async (userData: IUser) => {
     const savedUser = await newUser.save().then((user) => {
       return user.populate(["organization practitioner"]);
     });
+    await OrganizationModel.updateOne(
+      { _id: savedUser.organization },
+      { $addToSet: { users: savedUser._id } }
+    );
     console.log(" ✅ User saved to database:", savedUser._id);
     const findProfessionData = {
       _id: savedUser._id,

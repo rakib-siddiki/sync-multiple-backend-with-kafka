@@ -19,5 +19,10 @@ export const TOPICS = {
     UPDATE: "notification.update",
     DELETE: "notification.delete",
   },
+  ORG: {
+    CREATE: "organization.create",
+    UPDATE: "organization.update",
+    DELETE: "organization.delete",
+  },
 } as const;
 

@@ -1,5 +1,11 @@
 import { model, Schema, Types } from "mongoose";
 import type { IOrganization } from "../types/organization.type";
+import { setupChangeStreamWatcher } from "@/utils/change-stream-watcher";
+import {
+  sendOrganizationCreated,
+  sendOrganizationDeleted,
+  sendOrganizationUpdated,
+} from "../kafka/organization-producer";
 
 const OrganizationSchema = new Schema<IOrganization>(
   {
@@ -25,4 +31,19 @@ OrganizationSchema.index({ business_url: 1 });
 OrganizationSchema.index({ organization_account: 1 });
 OrganizationSchema.index({ user: 1 });
 
-export const OrganizationModel = model("Organization", OrganizationSchema);
+export const OrganizationModel = model<IOrganization>(
+  "Organization",
+  OrganizationSchema
+);
+
+setupChangeStreamWatcher(OrganizationModel, {
+  onInsert: async (document) => {
+    sendOrganizationCreated(document);
+  },
+  onUpdate: async (document) => {
+    sendOrganizationUpdated(document);
+  },
+  onDelete: async ({ _id }) => {
+    sendOrganizationDeleted(_id);
+  },
+});

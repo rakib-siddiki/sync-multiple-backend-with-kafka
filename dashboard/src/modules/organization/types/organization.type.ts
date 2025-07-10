@@ -1,5 +1,7 @@
-export interface IOrganization {
-  _id?: string;
+import type { Document } from "mongoose";
+
+export interface IOrganization extends Document {
+  _id: string;
   full_name: string;
   business_url: string;
   category: string;

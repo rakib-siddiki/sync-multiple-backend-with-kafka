@@ -1,31 +1,12 @@
-import { producerClient } from "@/config/kafka-producer";
 import { TOPICS } from "@/constant/topics";
 import type { IBranch } from "../types/branch.type";
-
-type TBranchTopic = (typeof TOPICS.BRANCH)[keyof typeof TOPICS.BRANCH];
-
-export const sendMessage = async (branch: IBranch, topic: TBranchTopic) => {
-  try {
-    await producerClient.connect();
-    await producerClient.send({
-      topic,
-      messages: [
-        {
-          key: branch._id.toString(),
-          value: JSON.stringify(branch),
-        },
-      ],
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
+import { sendKafkaMessage } from "@/handlers/send-message.handler";
 
 export const sendBranchCreated = (branch: IBranch) =>
-  sendMessage(branch, TOPICS.BRANCH.CREATE);
+  sendKafkaMessage(TOPICS.BRANCH.CREATE, branch, branch._id.toString());
 
 export const sendBranchUpdated = (branch: IBranch) =>
-  sendMessage(branch, TOPICS.BRANCH.UPDATE);
+  sendKafkaMessage(TOPICS.BRANCH.UPDATE, branch, branch._id.toString());
 
 export const sendBranchDeleted = (branch: IBranch) =>
-  sendMessage(branch, TOPICS.BRANCH.DELETE);
+  sendKafkaMessage(TOPICS.BRANCH.DELETE, branch, branch._id.toString());

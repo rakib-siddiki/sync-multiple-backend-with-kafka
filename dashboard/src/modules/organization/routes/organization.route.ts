@@ -7,4 +7,4 @@ const router = Router();
 router.post("/", organizationController.create);
 router.post("/account", orgAccountController.create);
 
-export default router;
+export const organizationRoutes = router;

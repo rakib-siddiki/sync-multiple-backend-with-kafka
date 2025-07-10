@@ -41,6 +41,8 @@ const findProfessionSchema = new Schema<IFindProfession>(
     _id: false, // Disable automatic _id generation
   }
 );
+findProfessionSchema.index({ organization: 1 });
+findProfessionSchema.index({ practitioner: 1 });
 
 export const FindProfessionModel = model(
   "FindProfession",
