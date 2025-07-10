@@ -3,8 +3,8 @@ import type { ObjectId } from "mongoose";
 export interface IFindProfession {
   _id: ObjectId;
   type: "Practitioner" | "Organization";
-  orgId: ObjectId | null;
-  pracId: ObjectId | null;
+  organization: ObjectId | null;
+  practitioner: ObjectId | null;
   status?: string;
   username: string;
   businessUrl: string;

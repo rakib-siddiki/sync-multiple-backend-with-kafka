@@ -2,7 +2,6 @@ import { TOPICS } from "@/constant/topics";
 import { UserModel } from "../models/user.model";
 import type { IUser } from "../types/user.type";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
-import { Types } from "mongoose";
 
 export type TUserTopic = (typeof TOPICS.USER)[keyof typeof TOPICS.USER];
 
@@ -11,12 +10,16 @@ const handleUserCreate = async (userData: IUser) => {
     const newUser = new UserModel(userData);
     const savedUser = await newUser.save();
     console.log(" ✅ User saved to database:", savedUser._id);
-   const findProfession = await FindProfessionModel.create({
+    const findProfession = await FindProfessionModel.create({
       _id: savedUser._id,
-      name: savedUser.name,
-      email: savedUser.email,
+      type: savedUser.organization ? "Organization" : "Practitioner",
+      organization: savedUser.organization,
+      practitioner: savedUser.practitioner,
+      status: savedUser.status,
+      username: savedUser.username,
+      photoUrl: savedUser.profile_photo_src,
     });
-   console.log("🚀 ~ findProfession:", findProfession)
+    console.log("🚀 ~ findProfession:", findProfession);
   } catch (err) {
     console.error("❌ Error saving user:", err);
   }
@@ -30,7 +33,9 @@ const handleUserUpdate = async (userData: IUser) => {
     console.log(" ✅ User updated in database:", userData._id);
     await FindProfessionModel.updateOne(
       { _id: userData._id },
-      { name: userData.name, email: userData.email }
+      {
+        ...userData,
+      }
     ).catch((err) => {
       console.error(" ❌ Error updating FindProfession:", err);
     });

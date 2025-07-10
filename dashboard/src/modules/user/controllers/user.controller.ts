@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as userService from "../services/user.service";
-import {
-  createUserSchema,
-  updateUserSchema,
-} from "../validators/user.validate";
+import { updateUserSchema } from "../validators/user.validate";
 
 export const createUser = async (
   req: Request,
@@ -11,12 +8,7 @@ export const createUser = async (
   next: NextFunction
 ) => {
   try {
-    // @ts-ignore
-    const parsed = createUserSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ error: parsed.error.errors });
-    }
-    const user = await userService.createUser(parsed.data);
+    const user = await userService.createUser(req.body);
 
     res.status(201).json({ data: user });
   } catch (err) {
@@ -60,21 +52,20 @@ export const getAllUsers = async (
 };
 
 export const deleteUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { id } = req.params;
-      const deleted = await userService.deleteUser(id);
-      
-      if (!deleted) {
-        return res.status(404).json({ error: 'User not found' });
-      }
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const deleted = await userService.deleteUser(id);
 
-      res.status(200).send({ message: 'User deleted successfully' });
-    } catch (err) {
-      next(err);
+    if (!deleted) {
+      return res.status(404).json({ error: "User not found" });
     }
-  };
 
+    res.status(200).send({ message: "User deleted successfully" });
+  } catch (err) {
+    next(err);
+  }
+};

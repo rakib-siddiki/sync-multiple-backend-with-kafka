@@ -27,6 +27,7 @@ const BranchInfoSchema = new Schema(
       default: { lat: "", long: "" },
     },
     online_booking: { type: Boolean, default: false },
+    branch: { type: Schema.Types.ObjectId, ref: "Branch", default: null },
   },
   { timestamps: true }
 );

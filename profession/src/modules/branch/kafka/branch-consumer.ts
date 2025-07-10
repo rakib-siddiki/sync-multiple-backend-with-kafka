@@ -2,7 +2,6 @@ import { TOPICS } from "@/constant/topics";
 import { BranchModel } from "../models/branch.model";
 import type { IBranch } from "../types/branch.type";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
-import { UserModel } from "@/modules/user/models/user.model";
 
 const handleBranchCreate = async (branchData: IBranch) => {
   try {
@@ -14,15 +13,16 @@ const handleBranchCreate = async (branchData: IBranch) => {
       "color: inherit",
       newBranch
     );
-    
-     await UserModel.updateOne(
-        { _id: branchData.userId },
-        { $addToSet: { branch: newBranch._id } }
-      );
-      await FindProfessionModel.updateOne(
-        { _id: branchData.userId },
-        { $addToSet: { branch: newBranch._id } }
-      );
+
+    await FindProfessionModel.updateOne(
+      {
+        $or: [
+          { userId: branchData.organization },
+          { organizationId: branchData.practitioner },
+        ],
+      },
+      { $addToSet: { branch: newBranch._id } }
+    );
 
     console.log(
       "%c[SUCCESS]%c User and FindProfession updated with new branch:",
@@ -52,12 +52,13 @@ const handleBranchUpdate = async (branchData: IBranch) => {
         updated
       );
 
-      await UserModel.updateOne(
-        { _id: branchData.userId },
-        { $addToSet: { branch: updated._id } }
-      );
       await FindProfessionModel.updateOne(
-        { _id: branchData.userId },
+        {
+          $or: [
+            { userId: branchData.organization },
+            { organizationId: branchData.practitioner },
+          ],
+        },
         { $addToSet: { branch: updated._id } }
       );
 
@@ -85,15 +86,16 @@ const handleBranchDelete = async (branchData: IBranch) => {
         "color: inherit",
         deleted
       );
-      
-       await UserModel.updateOne(
-          { _id: deleted.userId },
-          { $pull: { branch: deleted._id } }
-        );
-       await FindProfessionModel.updateOne(
-          { _id: deleted.userId },
-          { $pull: { branch: deleted._id } }
-        );
+
+      await FindProfessionModel.updateOne(
+        {
+          $or: [
+            { userId: deleted.organization },
+            { organizationId: deleted.practitioner },
+          ],
+        },
+        { $pull: { branch: deleted._id } }
+      );
 
       console.log(
         "%c[SUCCESS]%c User and FindProfession updated after branch deletion:",
