@@ -52,7 +52,13 @@ const handleOrgUpdate = async (orgData: IOrganization) => {
   }
 };
 
-const handleOrgDelete = async (orgData: IOrganization) => {};
+const handleOrgDelete = async (orgData: IOrganization) => {
+  try {
+    await OrganizationModel.findOneAndDelete({ _id: orgData._id });
+  } catch (error) {
+    console.error("Error handling organization deletion:", error);
+  }
+};
 
 export type TOrgTopic = (typeof TOPICS.ORG)[keyof typeof TOPICS.ORG];
 

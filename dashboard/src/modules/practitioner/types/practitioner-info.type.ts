@@ -1,3 +1,5 @@
+import type { Document, ObjectId } from "mongoose";
+
 export interface IEducation {
   country: string;
   degree: string;
@@ -26,13 +28,17 @@ export interface IWorkingHistory {
   end_date: string;
 }
 
-export interface IPractitionerInfo {
+export interface IPractitionerInfo extends Document {
+  _id: string; // ObjectId as string
   category: string;
   sub_category: string;
   educations: IEducation[];
   field_of_practice: IFieldOfPractice[];
   certificates_or_awards: ICertificateOrAward[];
   working_history: IWorkingHistory[];
+  area_of_practice: string;
+  list_of_degrees: string;
   created_at?: Date;
   updated_at?: Date;
+  practitioner: ObjectId | null; // ObjectId as string
 }

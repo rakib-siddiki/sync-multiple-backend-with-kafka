@@ -24,6 +24,16 @@ export const TOPICS = {
     UPDATE: "organization.update",
     DELETE: "organization.delete",
   },
+  PRAC: {
+    CREATE: "practitioner.create",
+    UPDATE: "practitioner.update",
+    DELETE: "practitioner.delete",
+  },
+  PRAC_INFO: {
+    CREATE: "practitioner_info.create",
+    UPDATE: "practitioner_info.update",
+    DELETE: "practitioner_info.delete",
+  },
 } as const;
 
 // Recursive type to extract all string values from a nested object

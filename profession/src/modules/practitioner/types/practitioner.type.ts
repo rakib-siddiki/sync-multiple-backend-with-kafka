@@ -1,4 +1,7 @@
-export interface IPractitioner {
+import type { Document, ObjectId } from "mongoose";
+
+export interface IPractitioner extends Document {
+  _id: ObjectId;
   full_name: string;
   username: string;
   email: string;

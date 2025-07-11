@@ -1,6 +1,7 @@
 import { OrganizationModel } from "@/modules/organization/models/organization.model";
 import { UserModel } from "../models/user.model";
 import mongoose from "mongoose";
+import { PractitionerModel } from "@/modules/practitioner/models/practitioner.model";
 
 export const createUser = async (input: any) => {
   const session = await mongoose.startSession();
@@ -16,11 +17,20 @@ export const createUser = async (input: any) => {
     if (!user || !user[0]) {
       throw new Error("User creation failed");
     }
-    await OrganizationModel.updateOne(
-      { _id: user[0].organization },
-      { $set: { user: user[0]._id } },
-      { new: true, upsert: true, session }
-    );
+    if (input.organization) {
+      await OrganizationModel.updateOne(
+        { _id: user[0].organization },
+        { $set: { user: user[0]._id } },
+        { new: true, upsert: true, session }
+      );
+    }
+    if (input.practitioner) {
+      await PractitionerModel.updateOne(
+        { _id: user[0].practitioner },
+        { $set: { practitioner: input.practitioner } },
+        { new: true, upsert: true, session }
+      );
+    }
     await session.commitTransaction();
     return user[0];
   } catch (error) {
