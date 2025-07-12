@@ -36,7 +36,7 @@ async function main() {
       mainLogger.table("Health Status", {
         "Service Status": status.isRunning ? "🟢 RUNNING" : "🔴 STOPPED",
         MongoDB: status.mongoConnected ? "🟢 CONNECTED" : "🔴 DISCONNECTED",
-        Kafka: status.kafkaConnected ? "🟢 CONNECTED" : "� DISCONNECTED",
+        Kafka: status.kafkaConnected ? "🟢 CONNECTED" : "🔴 DISCONNECTED",
         Database: status.database,
         "Buffer Size": status.bufferSize,
         "Reconnect Attempts": status.reconnectAttempts,

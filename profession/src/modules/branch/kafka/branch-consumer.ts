@@ -2,6 +2,7 @@ import { TOPICS } from "@/constant/topics";
 import { BranchModel } from "../models/branch.model";
 import type { IBranch } from "../types/branch.type";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
+import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
 
 const handleBranchCreate = async (branchData: IBranch) => {
   try {
@@ -113,23 +114,21 @@ const handleBranchDelete = async (branchData: IBranch) => {
 export type TBranchTopic = (typeof TOPICS.BRANCH)[keyof typeof TOPICS.BRANCH];
 
 export const branchConsumer = async (
-  topic: TBranchTopic,
+  operation: TDbOperation,
   branchData: IBranch
 ) => {
-  console.log("🚀 ~ topic:", topic);
-  console.log("🚀 ~ branchData:", branchData);
-  switch (topic) {
-    case TOPICS.BRANCH.CREATE:
+  switch (operation) {
+    case DB_OPERATION.INSERT:
       await handleBranchCreate(branchData);
       break;
-    case TOPICS.BRANCH.UPDATE:
+    case DB_OPERATION.UPDATE:
       await handleBranchUpdate(branchData);
       break;
-    case TOPICS.BRANCH.DELETE:
+    case DB_OPERATION.DELETE:
       await handleBranchDelete(branchData);
       break;
     // Add more cases for other topics as needed
     default:
-      console.warn(`Unhandled topic: ${topic}`);
+      console.warn(`Unhandled operation: ${operation}`);
   }
 };

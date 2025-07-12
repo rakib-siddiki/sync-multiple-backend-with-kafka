@@ -55,7 +55,7 @@ export class DatabaseWatcherService {
       this.logger.info("Database Watcher Service started successfully", {
         database: this.mongoWatcher.getDatabaseName(),
         kafkaBrokers: this.config.kafkaBrokers,
-        topics: this.config.topics,
+        topic: this.config.topic,
       });
 
       // Setup graceful shutdown
@@ -119,27 +119,11 @@ export class DatabaseWatcherService {
     const { operationType, ns, documentKey, fullDocument, updateDescription } =
       event;
 
-    // Determine topic
-    let topic: string | undefined;
-    if (this.config.topics.all) {
-      topic = this.config.topics.all;
-    } else {
-      switch (operationType) {
-        case "insert":
-        case "replace":
-          topic = this.config.topics.insert;
-          break;
-        case "update":
-          topic = this.config.topics.update;
-          break;
-        case "delete":
-          topic = this.config.topics.delete;
-          break;
-      }
-    }
+    // Use the single topic for all operations
+    const topic = this.config.topic;
 
     if (!topic) {
-      this.logger.warn(`No topic configured for operation: ${operationType}`);
+      this.logger.warn(`No topic configured for database changes`);
       return null;
     }
 
@@ -153,11 +137,13 @@ export class DatabaseWatcherService {
       ...(fullDocument && { fullDocument }),
       ...(updateDescription && { updateDescription }),
     };
+
     this.logger.info(`Creating message for operation: ${operationType}`, {
       topic,
       documentKey,
       payload,
     });
+
     return {
       topic,
       key: `${ns.db}.${ns.coll}.${documentKey?._id}`,

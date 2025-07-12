@@ -44,12 +44,7 @@ export interface WatcherConfig {
   mongoUri: string;
   kafkaBrokers: string[];
   kafkaClientId: string;
-  topics: {
-    insert?: string;
-    update?: string;
-    delete?: string;
-    all?: string;
-  };
+  topic: string;
   watchCollections?: string[];
   excludeCollections?: string[];
   logLevel: "error" | "warn" | "info" | "debug";

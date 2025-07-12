@@ -53,7 +53,7 @@ cp .env.example .env
 | `KAFKA_TOPIC_INSERT`     | Topic for insert operations              | -                  |
 | `KAFKA_TOPIC_UPDATE`     | Topic for update operations              | -                  |
 | `KAFKA_TOPIC_DELETE`     | Topic for delete operations              | -                  |
-| `KAFKA_TOPIC_ALL`        | Single topic for all operations          | -                  |
+| `KAFKA_DB_CHANGES_TOPIC` | Single topic for all operations          | -                  |
 | `WATCH_COLLECTIONS`      | Collections to watch (comma-separated)   | All collections    |
 | `EXCLUDE_COLLECTIONS`    | Collections to exclude (comma-separated) | None               |
 | `LOG_LEVEL`              | Logging level                            | `info`             |
@@ -68,7 +68,7 @@ You can configure topics in two ways:
 **Option 1: Single topic for all operations**
 
 ```env
-KAFKA_TOPIC_ALL=database.changes
+KAFKA_DB_CHANGES_TOPIC=database.changes
 ```
 
 **Option 2: Separate topics per operation**
@@ -155,7 +155,7 @@ Messages are keyed by: `{database}.{collection}.{documentId}`
 ```env
 MONGODB_URI=mongodb://localhost:27017/myapp
 KAFKA_BROKERS=localhost:9092
-KAFKA_TOPIC_ALL=database.changes
+KAFKA_DB_CHANGES_TOPIC=database.changes
 ```
 
 ### Watch Specific Collections
@@ -163,7 +163,7 @@ KAFKA_TOPIC_ALL=database.changes
 ```env
 MONGODB_URI=mongodb://localhost:27017/myapp
 KAFKA_BROKERS=localhost:9092
-KAFKA_TOPIC_ALL=database.changes
+KAFKA_DB_CHANGES_TOPIC=database.changes
 WATCH_COLLECTIONS=users,orders,products
 ```
 
@@ -172,7 +172,7 @@ WATCH_COLLECTIONS=users,orders,products
 ```env
 MONGODB_URI=mongodb://localhost:27017/myapp
 KAFKA_BROKERS=localhost:9092
-KAFKA_TOPIC_ALL=database.changes
+KAFKA_DB_CHANGES_TOPIC=database.changes
 EXCLUDE_COLLECTIONS=sessions,migrations,__schema
 ```
 

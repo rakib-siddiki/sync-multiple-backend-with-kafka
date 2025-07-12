@@ -3,6 +3,7 @@ import { UserModel } from "../models/user.model";
 import type { IUser } from "../types/user.type";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 import { OrganizationModel } from "@/modules/organization/models/organization.model";
+import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
 
 export type TUserTopic = (typeof TOPICS.USER)[keyof typeof TOPICS.USER];
 
@@ -63,18 +64,18 @@ const handleUserDelete = async (userData: IUser) => {
   }
 };
 
-export const userConsumer = async (topic: TUserTopic, userData: IUser) => {
-  switch (topic) {
-    case TOPICS.USER.CREATE:
+export const userConsumer = async (operation: TDbOperation, userData: IUser) => {
+  switch (operation) {
+    case DB_OPERATION.INSERT:
       await handleUserCreate(userData);
       break;
-    case TOPICS.USER.UPDATE:
+    case DB_OPERATION.UPDATE:
       await handleUserUpdate(userData);
       break;
-    case TOPICS.USER.DELETE:
+    case DB_OPERATION.DELETE:
       await handleUserDelete(userData);
       break;
     default:
-      console.warn(`Unhandled topic: ${topic}`);
+      console.warn(`Unhandled operation: ${operation}`);
   }
 };

@@ -17,12 +17,7 @@ export const config: WatcherConfig = {
     .KAFKA_BROKERS!.split(",")
     .map((broker) => broker.trim()),
   kafkaClientId: process.env.KAFKA_CLIENT_ID || "database-watcher",
-  topics: {
-    insert: process.env.KAFKA_TOPIC_INSERT,
-    update: process.env.KAFKA_TOPIC_UPDATE,
-    delete: process.env.KAFKA_TOPIC_DELETE,
-    all: process.env.KAFKA_TOPIC_ALL,
-  },
+  topic: process.env.KAFKA_DB_CHANGES_TOPIC || "database.changes",
   watchCollections: process.env.WATCH_COLLECTIONS
     ? process.env.WATCH_COLLECTIONS.split(",")
         .map((col) => col.trim())
@@ -40,13 +35,8 @@ export const config: WatcherConfig = {
 };
 
 // Validate topics configuration
-if (
-  !config.topics.all &&
-  !config.topics.insert &&
-  !config.topics.update &&
-  !config.topics.delete
-) {
+if (!config.topic) {
   throw new Error(
-    "At least one Kafka topic must be configured (KAFKA_TOPIC_ALL or individual operation topics)"
+    "KAFKA_DB_CHANGES_TOPIC must be configured for database change events"
   );
 }

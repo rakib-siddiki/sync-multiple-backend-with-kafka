@@ -147,7 +147,7 @@ WATCH_COLLECTIONS=users,organizations,practitioners
 ### Use Single Topic for All Operations
 
 ```env
-KAFKA_TOPIC_ALL=database.changes
+KAFKA_DB_CHANGES_TOPIC=database.changes
 # Comment out individual topics
 # KAFKA_TOPIC_INSERT=
 # KAFKA_TOPIC_UPDATE=
