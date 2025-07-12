@@ -2,6 +2,7 @@ import { TOPICS } from "@/constant/topics";
 import type { IOrganization } from "../types/organization.types";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 import { OrganizationModel } from "../models/organization.model";
+import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
 
 const handleOrgCreate = async (orgData: IOrganization) => {
   try {
@@ -62,18 +63,21 @@ const handleOrgDelete = async (orgData: IOrganization) => {
 
 export type TOrgTopic = (typeof TOPICS.ORG)[keyof typeof TOPICS.ORG];
 
-export const orgConsumer = async (topic: TOrgTopic, orgData: IOrganization) => {
-  switch (topic) {
-    case TOPICS.ORG.CREATE:
+export const orgConsumer = async (
+  operation: TDbOperation,
+  orgData: IOrganization
+) => {
+  switch (operation) {
+    case DB_OPERATION.INSERT:
       await handleOrgCreate(orgData);
       break;
-    case TOPICS.ORG.UPDATE:
+    case DB_OPERATION.UPDATE:
       await handleOrgUpdate(orgData);
       break;
-    case TOPICS.ORG.DELETE:
+    case DB_OPERATION.DELETE:
       await handleOrgDelete(orgData);
       break;
     default:
-      console.warn(`Unhandled topic: ${topic}`);
+      console.warn(`Unhandled operation: ${operation}`);
   }
 };

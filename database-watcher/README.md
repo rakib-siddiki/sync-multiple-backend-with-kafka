@@ -50,10 +50,7 @@ cp .env.example .env
 | Variable                 | Description                              | Default            |
 | ------------------------ | ---------------------------------------- | ------------------ |
 | `KAFKA_CLIENT_ID`        | Kafka client identifier                  | `database-watcher` |
-| `KAFKA_TOPIC_INSERT`     | Topic for insert operations              | -                  |
-| `KAFKA_TOPIC_UPDATE`     | Topic for update operations              | -                  |
-| `KAFKA_TOPIC_DELETE`     | Topic for delete operations              | -                  |
-| `KAFKA_DB_CHANGES_TOPIC` | Single topic for all operations          | -                  |
+| `KAFKA_DB_CHANGES_TOPIC`        | Single topic for all operations          | `database.changes` |
 | `WATCH_COLLECTIONS`      | Collections to watch (comma-separated)   | All collections    |
 | `EXCLUDE_COLLECTIONS`    | Collections to exclude (comma-separated) | None               |
 | `LOG_LEVEL`              | Logging level                            | `info`             |
@@ -61,23 +58,15 @@ cp .env.example .env
 | `RECONNECT_DELAY`        | Reconnection delay (ms)                  | `5000`             |
 | `MAX_RECONNECT_ATTEMPTS` | Max reconnection attempts                | `10`               |
 
-### Topic Configuration Options
+### Topic Configuration
 
-You can configure topics in two ways:
-
-**Option 1: Single topic for all operations**
+The database watcher uses a single topic for all database operations:
 
 ```env
 KAFKA_DB_CHANGES_TOPIC=database.changes
 ```
 
-**Option 2: Separate topics per operation**
-
-```env
-KAFKA_TOPIC_INSERT=database.insert
-KAFKA_TOPIC_UPDATE=database.update
-KAFKA_TOPIC_DELETE=database.delete
-```
+All database change events (insert, update, delete) will be sent to this single topic, making it easier to manage and consume.
 
 ## Usage
 
@@ -176,16 +165,6 @@ KAFKA_DB_CHANGES_TOPIC=database.changes
 EXCLUDE_COLLECTIONS=sessions,migrations,__schema
 ```
 
-### Separate Topics per Operation
-
-```env
-MONGODB_URI=mongodb://localhost:27017/myapp
-KAFKA_BROKERS=localhost:9092
-KAFKA_TOPIC_INSERT=db.created
-KAFKA_TOPIC_UPDATE=db.updated
-KAFKA_TOPIC_DELETE=db.deleted
-```
-
 ## Health Monitoring
 
 The service logs its status every 30 seconds and provides health check methods:
@@ -212,7 +191,7 @@ This database watcher is designed to run independently of your existing project.
 1. **Run as a separate service**: Deploy alongside your main application
 2. **Use different database**: Point to the same MongoDB but different database
 3. **Filter collections**: Watch only specific collections that matter
-4. **Custom topics**: Use your existing Kafka topic naming convention
+4. **Single topic**: All database changes are sent to one topic for easy consumption
 
 ### Removing Schema-Specific Watchers
 

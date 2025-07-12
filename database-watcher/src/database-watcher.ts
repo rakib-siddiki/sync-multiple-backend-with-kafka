@@ -1,7 +1,7 @@
 import { DatabaseChangeEvent, KafkaMessage, WatcherConfig } from "./types";
-import { Logger } from "./logger";
-import { MongoWatcher } from "./mongo-watcher";
-import { KafkaProducer } from "./kafka-producer";
+import { Logger } from "./utils/logger";
+import { MongoWatcher } from "./utils/mongo-watcher";
+import { KafkaProducer } from "./kafka/kafka-producer";
 
 export class DatabaseWatcherService {
   private readonly logger: Logger;

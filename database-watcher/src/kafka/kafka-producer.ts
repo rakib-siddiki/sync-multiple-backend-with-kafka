@@ -1,6 +1,6 @@
 import { Kafka, Producer, logLevel } from "kafkajs";
-import { KafkaMessage } from "./types";
-import { Logger } from "./logger";
+import { KafkaMessage } from "../types";
+import { Logger } from "../utils/logger";
 
 export class KafkaProducer {
   private readonly kafka: Kafka;

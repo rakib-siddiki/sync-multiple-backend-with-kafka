@@ -4,6 +4,7 @@ import { FindProfessionModel } from "@/modules/find-profession/models/find-profe
 import { PractitionerModel } from "../models/practitioner.model";
 import type { IPractitioner } from "../types/practitioner.type";
 import mongoose from "mongoose";
+import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
 
 const handlePracCreate = async (pracData: IPractitioner) => {
   console.log("🚀 ~ pracData:", pracData)
@@ -90,22 +91,21 @@ const handlePracDelete = async (pracData: IPractitioner) => {
 export type TPracTopic = (typeof TOPICS.PRAC)[keyof typeof TOPICS.PRAC];
 
 export const pracConsumer = async (
-  topic: TPracTopic,
+   operation: TDbOperation,
   pracData: IPractitioner
 ) => {
-  console.log("🚀 ~ pracData:", pracData)
-  console.log("🚀 ~ topic:", topic)
-  switch (topic) {
-    case TOPICS.PRAC.CREATE:
+
+  switch (operation) {
+    case DB_OPERATION.INSERT:
       await handlePracCreate(pracData);
       break;
-    case TOPICS.PRAC.UPDATE:
+    case DB_OPERATION.UPDATE:
       await handlePracUpdate(pracData);
       break;
-    case TOPICS.PRAC.DELETE:
+    case DB_OPERATION.DELETE:
       await handlePracDelete(pracData);
       break;
     default:
-      console.warn(`Unhandled topic: ${topic}`);
+      console.warn(`Unhandled operation: ${operation}`);
   }
 };

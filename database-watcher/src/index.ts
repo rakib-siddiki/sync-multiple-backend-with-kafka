@@ -1,6 +1,6 @@
 import { config } from "./config";
 import { DatabaseWatcherService } from "./database-watcher";
-import { Logger } from "./logger";
+import { Logger } from "./utils/logger";
 
 // Create a main logger for the index file
 const mainLogger = new Logger(config.logLevel);

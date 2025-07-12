@@ -1,5 +1,5 @@
 import { MongoClient, Db, ChangeStream } from "mongodb";
-import { DatabaseChangeEvent } from "./types";
+import { DatabaseChangeEvent } from "../types";
 import { Logger } from "./logger";
 
 export class MongoWatcher {

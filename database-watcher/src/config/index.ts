@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { WatcherConfig } from "./types";
+import { WatcherConfig } from "../types";
 
 dotenv.config();
 
