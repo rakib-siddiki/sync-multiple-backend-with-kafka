@@ -27,3 +27,4 @@ export const PractitionerInfoModel = model(
   "PractitionerInfo",
   PractitionerInfoSchema
 );
+

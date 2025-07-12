@@ -6,10 +6,45 @@ import { PractitionerInfoModel } from "../models/practitioner-info.model";
 import type { IPractitionerInfo } from "../types/practitioner-info.type";
 
 const handlePracInfoCreate = async (pracInfoData: IPractitionerInfo) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    await PractitionerInfoModel.create(pracInfoData);
+    const createdPrac = await PractitionerInfoModel.create([pracInfoData], {
+      session,
+    });
+    if (pracInfoData.practitioner && createdPrac.length > 0) {
+      const subCategories = [createdPrac[0].sub_category];
+
+      createdPrac[0].field_of_practice.forEach((field) => {
+        if (field.specialized_filed) {
+          subCategories.push(field.specialized_filed);
+        }
+      });
+
+      // Create or update the FindProfessionModel entry for the practitioner
+      await FindProfessionModel.findOneAndUpdate(
+        {
+          practitioner: createdPrac[0].practitioner,
+        },
+        {
+          category: pracInfoData.category,
+          sub_category: subCategories,
+          area_of_practice: pracInfoData.area_of_practice,
+          list_of_degrees: pracInfoData.list_of_degrees,
+        },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        }
+      );
+    }
+    await session.commitTransaction();
   } catch (error) {
+    await session.abortTransaction();
     console.error("Error handling practitioner creation:", error);
+  } finally {
+    session.endSession();
   }
 };
 
@@ -38,7 +73,7 @@ const handlePracInfoUpdate = async (pracInfoData: IPractitionerInfo) => {
       // Create or update the FindProfessionModel entry for the practitioner
       await FindProfessionModel.findOneAndUpdate(
         {
-          practitioner: updatedPrac._id,
+          practitioner: updatedPrac.practitioner,
         },
         {
           category: pracInfoData.category,
@@ -73,7 +108,8 @@ const handlePracInfoDelete = async (pracInfoData: IPractitionerInfo) => {
   }
 };
 
-export type TPracTopic = (typeof TOPICS.PRAC_INFO)[keyof typeof TOPICS.PRAC_INFO];
+export type TPracTopic =
+  (typeof TOPICS.PRAC_INFO)[keyof typeof TOPICS.PRAC_INFO];
 
 export const pracInfoConsumer = async (
   topic: TPracTopic,

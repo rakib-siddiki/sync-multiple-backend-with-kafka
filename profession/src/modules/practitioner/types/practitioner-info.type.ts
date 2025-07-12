@@ -38,6 +38,7 @@ export interface IPractitionerInfo extends Document {
   working_history: IWorkingHistory[];
   area_of_practice: string;
   list_of_degrees: string;
+  practitioner: ObjectId | null;
   created_at: Date;
   updated_at: Date;
 }
