@@ -1,12 +1,13 @@
 import { model, Schema } from "mongoose";
 import { IFindProfession } from "../types/find-profession.type";
+import { FIND_PROFESSION_TYPE_ENUM } from "../constant";
 
 const findProfessionSchema = new Schema<IFindProfession>(
   {
     _id: { type: Schema.Types.ObjectId },
     type: {
       type: String,
-      enum: ["Practitioner", "Organization"],
+      enum: FIND_PROFESSION_TYPE_ENUM,
     },
     organization: {
       type: Schema.Types.ObjectId,
