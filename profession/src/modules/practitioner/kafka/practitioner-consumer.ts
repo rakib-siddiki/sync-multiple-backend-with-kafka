@@ -5,16 +5,19 @@ import { PractitionerModel } from "../models/practitioner.model";
 import type { IPractitioner } from "../types/practitioner.type";
 import mongoose from "mongoose";
 import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
+import { logger } from "@/utils/logger";
 
 const handlePracCreate = async (pracData: IPractitioner) => {
-  console.log("🚀 ~ pracData:", pracData)
+  logger.info("pracData:", pracData);
   const session = await mongoose.startSession();
+
   session.startTransaction();
   try {
     await PractitionerModel.create([pracData], { session });
+    logger.success("Practitioner created successfully:", pracData._id);
     if (pracData.user) {
       // Create or update the FindProfessionModel entry for the practitioner
-    const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
+      const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
         {
           _id: pracData.user,
         },
@@ -27,12 +30,12 @@ const handlePracCreate = async (pracData: IPractitioner) => {
           session,
         }
       );
-      console.log("FindProfessionModel updated:", updatedFindProfession);
+      logger.info("FindProfessionModel updated:", updatedFindProfession);
     }
     await session.commitTransaction();
   } catch (error) {
     await session.abortTransaction();
-    console.error("Error handling practitioner creation:", error);
+    logger.error("Error handling practitioner creation:", error);
   } finally {
     session.endSession();
   }
@@ -70,31 +73,30 @@ const handlePracUpdate = async (pracData: IPractitioner) => {
     }
 
     await session.commitTransaction();
-    console.log(`Practitioner with ID ${pracData._id} updated successfully.`);
+    logger.info(`Practitioner with ID ${pracData._id} updated successfully.`);
   } catch (error) {
     await session.abortTransaction();
-    console.error("Error handling practitioner creation:", error);
+    logger.error("Error handling practitioner creation:", error);
   } finally {
     session.endSession();
   }
 };
 
 const handlePracDelete = async (pracData: IPractitioner) => {
-  console.log("🚀 ~ pracData:", pracData);
+  logger.info("pracData:", pracData);
   try {
     await PractitionerModel.findOneAndDelete({ _id: pracData._id });
   } catch (error) {
-    console.error("Error handling practitioner deletion:", error);
+    logger.error("Error handling practitioner deletion:", error);
   }
 };
 
 export type TPracTopic = (typeof TOPICS.PRAC)[keyof typeof TOPICS.PRAC];
 
 export const pracConsumer = async (
-   operation: TDbOperation,
+  operation: TDbOperation,
   pracData: IPractitioner
 ) => {
-
   switch (operation) {
     case DB_OPERATION.INSERT:
       await handlePracCreate(pracData);

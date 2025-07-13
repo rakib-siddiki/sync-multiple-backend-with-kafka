@@ -3,12 +3,14 @@ import type { IOrganization } from "../types/organization.types";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 import { OrganizationModel } from "../models/organization.model";
 import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
+import { logger } from "@/utils/logger";
 
 const handleOrgCreate = async (orgData: IOrganization) => {
   try {
     await OrganizationModel.create(orgData);
+    logger.success("Organization created successfully:", orgData);
   } catch (error) {
-    console.error("Error handling organization creation:", error);
+    logger.error("Error handling organization creation:", error);
   }
 };
 
@@ -22,7 +24,7 @@ const handleOrgUpdate = async (orgData: IOrganization) => {
       }
     );
     if (!updatedOrg) {
-      console.warn(`Organization with ID ${orgData._id} not found for update.`);
+      logger.warn(`Organization with ID ${orgData._id} not found for update.`);
       return;
     }
 
@@ -49,7 +51,7 @@ const handleOrgUpdate = async (orgData: IOrganization) => {
       }
     );
   } catch (error) {
-    console.error("Error handling organization creation:", error);
+    logger.error("Error handling organization creation:", error);
   }
 };
 
@@ -57,7 +59,7 @@ const handleOrgDelete = async (orgData: IOrganization) => {
   try {
     await OrganizationModel.findOneAndDelete({ _id: orgData._id });
   } catch (error) {
-    console.error("Error handling organization deletion:", error);
+    logger.error("Error handling organization deletion:", error);
   }
 };
 

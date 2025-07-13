@@ -4,6 +4,7 @@ import type { IUser } from "../types/user.type";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 import { OrganizationModel } from "@/modules/organization/models/organization.model";
 import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
+import { logger } from "@/utils/logger";
 
 export type TUserTopic = (typeof TOPICS.USER)[keyof typeof TOPICS.USER];
 
@@ -17,7 +18,7 @@ const handleUserCreate = async (userData: IUser) => {
       { _id: savedUser.organization },
       { $addToSet: { users: savedUser._id } }
     );
-    console.log(" ✅ User saved to database:", savedUser._id);
+    logger.success("User created successfully:", savedUser);
     const findProfessionData = {
       _id: savedUser._id,
       type: savedUser.organization ? "Organization" : "Practitioner",
@@ -29,9 +30,9 @@ const handleUserCreate = async (userData: IUser) => {
     };
 
     const findProfession = await FindProfessionModel.create(findProfessionData);
-    console.log("🚀 ~ findProfession:", findProfession);
+    logger.success("FindProfession created successfully:", findProfession);
   } catch (err) {
-    console.error("❌ Error saving user:", err);
+    logger.error("Error saving user:", err);
   }
 };
 
@@ -40,31 +41,34 @@ const handleUserUpdate = async (userData: IUser) => {
     await UserModel.findOneAndUpdate({ _id: userData._id }, userData, {
       new: true,
     });
-    console.log(" ✅ User updated in database:", userData._id);
+    logger.success("User updated in database:", userData._id);
     await FindProfessionModel.updateOne(
       { _id: userData._id },
       {
         ...userData,
       }
     ).catch((err) => {
-      console.error(" ❌ Error updating FindProfession:", err);
+      logger.error("Error updating FindProfession:", err);
     });
   } catch (err) {
-    console.error("❌ Error updating user:", err);
+    logger.error("Error updating user:", err);
   }
 };
 
 const handleUserDelete = async (userData: IUser) => {
   try {
     await UserModel.findByIdAndDelete(userData._id);
-    console.log(" ✅ User deleted from database:", userData._id);
+    logger.success("User deleted from database:", userData._id);
     await FindProfessionModel.deleteOne({ _id: userData._id });
   } catch (err) {
-    console.error("❌ Error deleting user:", err);
+    logger.error("Error deleting user:", err);
   }
 };
 
-export const userConsumer = async (operation: TDbOperation, userData: IUser) => {
+export const userConsumer = async (
+  operation: TDbOperation,
+  userData: IUser
+) => {
   switch (operation) {
     case DB_OPERATION.INSERT:
       await handleUserCreate(userData);

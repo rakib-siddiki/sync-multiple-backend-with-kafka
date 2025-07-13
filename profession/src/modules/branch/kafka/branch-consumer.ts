@@ -3,17 +3,13 @@ import { BranchModel } from "../models/branch.model";
 import type { IBranch } from "../types/branch.type";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
+import { logger } from "@/utils/logger";
 
 const handleBranchCreate = async (branchData: IBranch) => {
   try {
     const newBranch = new BranchModel(branchData);
     await newBranch.save();
-    console.log(
-      "%c[SUCCESS]%c Branch created successfully:",
-      "color: green; font-weight: bold",
-      "color: inherit",
-      newBranch
-    );
+    logger.success("Branch created successfully:", newBranch);
 
     await FindProfessionModel.updateOne(
       {
@@ -25,13 +21,12 @@ const handleBranchCreate = async (branchData: IBranch) => {
       { $addToSet: { branch: newBranch._id } }
     );
 
-    console.log(
-      "%c[SUCCESS]%c User and FindProfession updated with new branch:",
-      "color: green; font-weight: bold",
-      "color: inherit"
+    logger.success(
+      "User and FindProfession updated with new branch:",
+      newBranch._id
     );
   } catch (err) {
-    console.error("Error saving branch:", err);
+    logger.error("Error saving branch:", err);
   }
 };
 
@@ -46,12 +41,7 @@ const handleBranchUpdate = async (branchData: IBranch) => {
     );
 
     if (updated) {
-      console.log(
-        "%c[SUCCESS]%c Branch updated successfully:",
-        "color: green; font-weight: bold",
-        "color: inherit",
-        updated
-      );
+      logger.success("Branch updated successfully:", updated);
 
       await FindProfessionModel.updateOne(
         {
@@ -63,30 +53,24 @@ const handleBranchUpdate = async (branchData: IBranch) => {
         { $addToSet: { branch: updated._id } }
       );
 
-      console.log(
-        "%c[SUCCESS]%c User and FindProfession updated with new branch:",
-        "color: green; font-weight: bold",
-        "color: inherit"
+      logger.success(
+        "User and FindProfession updated with modified branch:",
+        updated._id
       );
     } else {
-      console.warn("Branch not found for update:", branchData._id);
+      logger.warn("Branch not found for update:", branchData._id);
     }
   } catch (err) {
-    console.error("Error updating branch:", err);
+    logger.error("Error updating branch:", err);
   }
 };
 
 const handleBranchDelete = async (branchData: IBranch) => {
-  console.log("🚀 ~ branchData:", branchData);
+  logger.info("branchData:", branchData);
   try {
     const deleted = await BranchModel.findByIdAndRemove(branchData._id);
     if (deleted) {
-      console.log(
-        "%c[SUCCESS]%c Branch deleted successfully:",
-        "color: green; font-weight: bold",
-        "color: inherit",
-        deleted
-      );
+      logger.success("Branch deleted successfully:", deleted);
 
       await FindProfessionModel.updateOne(
         {
@@ -98,16 +82,15 @@ const handleBranchDelete = async (branchData: IBranch) => {
         { $pull: { branch: deleted._id } }
       );
 
-      console.log(
-        "%c[SUCCESS]%c User and FindProfession updated after branch deletion:",
-        "color: green; font-weight: bold",
-        "color: inherit"
+      logger.success(
+        "User and FindProfession updated after branch deletion:",
+        deleted._id
       );
     } else {
-      console.warn("Branch not found for delete:", branchData._id);
+      logger.warn("Branch not found for delete:", branchData._id);
     }
   } catch (err) {
-    console.error("Error deleting branch:", err);
+    logger.error("Error deleting branch:", err);
   }
 };
 

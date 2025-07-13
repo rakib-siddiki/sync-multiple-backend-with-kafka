@@ -3,11 +3,10 @@ import { IFindProfession } from "../types/find-profession.type";
 
 const findProfessionSchema = new Schema<IFindProfession>(
   {
-    _id: { type: Schema.Types.ObjectId, required: true },
+    _id: { type: Schema.Types.ObjectId },
     type: {
       type: String,
       enum: ["Practitioner", "Organization"],
-      required: true,
     },
     organization: {
       type: Schema.Types.ObjectId,
@@ -20,7 +19,7 @@ const findProfessionSchema = new Schema<IFindProfession>(
       default: null,
     },
     status: { type: String, default: "" },
-    username: { type: String, required: true },
+    username: { type: String },
     business_url: { type: String, default: "" },
     practitioner_name: { type: String, default: "" },
     org_name: { type: String, default: "" },
@@ -41,6 +40,8 @@ const findProfessionSchema = new Schema<IFindProfession>(
     _id: false, // Disable automatic _id generation
   }
 );
+findProfessionSchema.index({ type: 1 });
+findProfessionSchema.index({ username: 1 });
 findProfessionSchema.index({ organization: 1 });
 findProfessionSchema.index({ practitioner: 1 });
 

@@ -3,7 +3,7 @@ import { IUser } from "../types/user.type";
 
 const userSchema: Schema<IUser> = new Schema(
   {
-    username: { type: String, required: true, unique: true },
+    username: { type: String },
     profile_photo_src: { type: String, default: "" },
     status: { type: String, default: "pending" },
     practitioner: {

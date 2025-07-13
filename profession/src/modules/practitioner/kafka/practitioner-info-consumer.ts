@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { PractitionerInfoModel } from "../models/practitioner-info.model";
 import type { IPractitionerInfo } from "../types/practitioner-info.type";
 import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
+import { logger } from "@/utils/logger";
 
 const handlePracInfoCreate = async (pracInfoData: IPractitionerInfo) => {
   const session = await mongoose.startSession();
@@ -13,6 +14,9 @@ const handlePracInfoCreate = async (pracInfoData: IPractitionerInfo) => {
     const createdPrac = await PractitionerInfoModel.create([pracInfoData], {
       session,
     });
+    logger.info(
+      `Practitioner with ID ${pracInfoData.toObject().id} created successfully.`
+    );
     if (pracInfoData.practitioner && createdPrac.length > 0) {
       const subCategories = [createdPrac[0].sub_category];
 
@@ -43,7 +47,7 @@ const handlePracInfoCreate = async (pracInfoData: IPractitionerInfo) => {
     await session.commitTransaction();
   } catch (error) {
     await session.abortTransaction();
-    console.error("Error handling practitioner creation:", error);
+    logger.error("Error handling practitioner creation:", error);
   } finally {
     session.endSession();
   }
@@ -90,12 +94,12 @@ const handlePracInfoUpdate = async (pracInfoData: IPractitionerInfo) => {
       );
     }
     await session.commitTransaction();
-    console.log(
+    logger.info(
       `Practitioner with ID ${pracInfoData.toObject().id} updated successfully.`
     );
   } catch (error) {
     await session.abortTransaction();
-    console.error("Error handling practitioner creation:", error);
+    logger.error("Error handling practitioner creation:", error);
   } finally {
     session.endSession();
   }
@@ -105,7 +109,7 @@ const handlePracInfoDelete = async (pracInfoData: IPractitionerInfo) => {
   try {
     await PractitionerInfoModel.findOneAndDelete({ _id: pracInfoData._id });
   } catch (error) {
-    console.error("Error handling practitioner deletion:", error);
+    logger.error("Error handling practitioner deletion:", error);
   }
 };
 
