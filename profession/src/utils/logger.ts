@@ -41,7 +41,7 @@ const levelConfig = {
   },
   debug: {
     color: colors.magenta,
-    bgColor: colors.bgBlue,
+    bgColor: colors.bgYellow,
     icon: "🔍",
     label: "DEBUG",
   },

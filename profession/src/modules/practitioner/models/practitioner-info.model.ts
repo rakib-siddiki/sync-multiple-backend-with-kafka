@@ -1,6 +1,7 @@
 import { model, Schema, Types } from "mongoose";
+import { IPractitionerInfo } from "../types/practitioner-info.type";
 
-const PractitionerInfoSchema = new Schema(
+const PractitionerInfoSchema = new Schema<IPractitionerInfo>(
   {
     category: { type: String, default: "" },
     sub_category: { type: String, default: "" },
@@ -23,7 +24,7 @@ const PractitionerInfoSchema = new Schema(
 
 PractitionerInfoSchema.index({ practitioner: 1 });
 
-export const PractitionerInfoModel = model(
+export const PractitionerInfoModel = model<IPractitionerInfo>(
   "PractitionerInfo",
   PractitionerInfoSchema
 );

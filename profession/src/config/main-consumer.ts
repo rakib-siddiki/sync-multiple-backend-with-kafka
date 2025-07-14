@@ -60,9 +60,10 @@ const COLLECTION_CONSUMER_MAP = {
   users: userConsumer,
   organizations: orgConsumer,
   practitioners: pracConsumer,
-  practitioner_infos: pracInfoConsumer,
+  practitionerinfos: pracInfoConsumer,
   // Add more collection mappings as needed
 };
+
 type TCollectionName = keyof typeof COLLECTION_CONSUMER_MAP;
 // Main consumer function to connect and listen for database change messages
 export const mainConsumer = async () => {
@@ -130,7 +131,7 @@ export const mainConsumer = async () => {
           "success"
         );
       } catch (error) {
-        logger.error("Error processing database change event:", error);
+        logger.error("processing database change event:", error);
       }
     },
   });

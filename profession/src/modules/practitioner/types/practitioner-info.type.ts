@@ -29,7 +29,7 @@ export interface IWorkingHistory {
 }
 
 export interface IPractitionerInfo extends Document {
-  _id: ObjectId;
+  _id: string;
   category: string;
   sub_category: string;
   educations: IEducation[];

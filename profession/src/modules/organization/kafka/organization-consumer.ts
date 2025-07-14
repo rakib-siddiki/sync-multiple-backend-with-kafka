@@ -39,9 +39,9 @@ const handleOrgCreate = async (orgData: IOrganization) => {
         type: FIND_PROFESSION_TYPE.ORG,
         org_name: orgData.full_name,
         business_url: orgData.business_url,
-        category: orgData.category,
+        org_category: orgData.category,
         $addToSet: {
-          sub_category: {
+          org_sub_category: {
             $each: Array.isArray(orgData.sub_category)
               ? orgData.sub_category
               : [orgData.sub_category],
@@ -88,9 +88,9 @@ const handleOrgUpdate = async (orgData: IOrganization) => {
       {
         org_name: orgData.full_name,
         business_url: orgData.business_url,
-        category: orgData.category,
+        org_category: orgData.category,
         $addToSet: {
-          sub_category: Array.isArray(orgData.sub_category)
+          org_sub_category: Array.isArray(orgData.sub_category)
             ? { $each: orgData.sub_category }
             : orgData.sub_category,
         },
@@ -131,17 +131,25 @@ const handleOrgDelete = async (orgData: IOrganization) => {
       );
       return;
     }
+    await UserModel.findOneAndUpdate(
+      { organization: deletedOrg._id },
+      { $set: { organization: null } },
+      { new: true, session }
+    );
     logger.success("Organization deleted successfully:", orgData._id);
     const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
       {
         organization: deletedOrg._id,
       },
       {
-        org_name: "",
-        business_url: "",
-        category: "",
+        $set: {
+          organization: null,
+          org_name: "",
+          business_url: "",
+          org_category: "",
+        },
         $pull: {
-          sub_category: {
+          org_sub_category: {
             $in: Array.isArray(deletedOrg.sub_category)
               ? deletedOrg.sub_category
               : [deletedOrg.sub_category],

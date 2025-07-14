@@ -1,47 +1,58 @@
 import { TOPICS } from "@/constant/topics";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
-
-import mongoose from "mongoose";
+import { startSession } from "mongoose";
 import { PractitionerInfoModel } from "../models/practitioner-info.model";
 import type { IPractitionerInfo } from "../types/practitioner-info.type";
 import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
 import { logger } from "@/utils/logger";
 
 const handlePracInfoCreate = async (pracInfoData: IPractitionerInfo) => {
-  const session = await mongoose.startSession();
+  const session = await startSession();
   session.startTransaction();
   try {
-    const createdPrac = await PractitionerInfoModel.create([pracInfoData], {
+    const [createdPrac] = await PractitionerInfoModel.create([pracInfoData], {
       session,
     });
-    logger.info(
-      `Practitioner with ID ${pracInfoData.toObject().id} created successfully.`
-    );
-    if (pracInfoData.practitioner && createdPrac.length > 0) {
-      const subCategories = [createdPrac[0].sub_category];
+    if (!createdPrac) {
+      logger.error("Failed to create practitioner:", pracInfoData);
+      return;
+    }
+    logger.info(`Practitioner with ID ${createdPrac.id} created successfully.`);
+    if (pracInfoData.practitioner && createdPrac) {
+      const subCategories = [createdPrac.sub_category];
 
-      createdPrac[0].field_of_practice.forEach((field) => {
+      createdPrac.field_of_practice.forEach((field) => {
         if (field.specialized_filed) {
           subCategories.push(field.specialized_filed);
         }
       });
 
       // Create or update the FindProfessionModel entry for the practitioner
-      await FindProfessionModel.findOneAndUpdate(
+      const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
         {
-          practitioner: createdPrac[0].practitioner,
+          practitioner: createdPrac.practitioner,
         },
         {
-          category: pracInfoData.category,
-          sub_category: subCategories,
-          area_of_practice: pracInfoData.area_of_practice,
-          list_of_degrees: pracInfoData.list_of_degrees,
+          $set: {
+            prac_category: pracInfoData.category,
+            area_of_practice: pracInfoData.area_of_practice,
+            list_of_degrees: pracInfoData.list_of_degrees,
+          },
+          $addToSet: {
+            prac_sub_category: { $each: subCategories },
+          },
         },
         {
-          new: true,
-          runValidators: true,
           session,
         }
+      );
+      if (!updatedFindProfession) {
+        logger.error(
+          `Failed to update FindProfessionModel for practitioner info ID ${createdPrac._id}.`
+        );
+      }
+      logger.info(
+        `FindProfessionModel updated for practitioner info ID ${createdPrac._id}.`
       );
     }
     await session.commitTransaction();
@@ -54,15 +65,13 @@ const handlePracInfoCreate = async (pracInfoData: IPractitionerInfo) => {
 };
 
 const handlePracInfoUpdate = async (pracInfoData: IPractitionerInfo) => {
-  const session = await mongoose.startSession();
+  const session = await startSession();
   session.startTransaction();
   try {
     const updatedPrac = await PractitionerInfoModel.findOneAndUpdate(
       { _id: pracInfoData._id },
       pracInfoData,
       {
-        new: true,
-        runValidators: true,
         session,
       }
     );
@@ -75,22 +84,34 @@ const handlePracInfoUpdate = async (pracInfoData: IPractitionerInfo) => {
         }
       });
 
+      console.log("🚀 ~ subCategories:", subCategories);
+
       // Create or update the FindProfessionModel entry for the practitioner
-      await FindProfessionModel.findOneAndUpdate(
+      const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
         {
           practitioner: updatedPrac.practitioner,
         },
         {
-          category: pracInfoData.category,
-          sub_category: subCategories,
-          area_of_practice: pracInfoData.area_of_practice,
-          list_of_degrees: pracInfoData.list_of_degrees,
+          $set: {
+            prac_category: pracInfoData.category,
+            area_of_practice: pracInfoData.area_of_practice,
+            list_of_degrees: pracInfoData.list_of_degrees,
+          },
+          $addToSet: {
+            prac_sub_category: { $each: subCategories },
+          },
         },
         {
-          new: true,
-          runValidators: true,
           session,
         }
+      );
+      if (!updatedFindProfession) {
+        logger.error(
+          `Failed to update FindProfessionModel for practitioner info ID ${updatedPrac._id}.`
+        );
+      }
+      logger.info(
+        `FindProfessionModel updated for practitioner info ID ${updatedPrac._id}.`
       );
     }
     await session.commitTransaction();
@@ -106,10 +127,71 @@ const handlePracInfoUpdate = async (pracInfoData: IPractitionerInfo) => {
 };
 
 const handlePracInfoDelete = async (pracInfoData: IPractitionerInfo) => {
+  logger.debug("Handling practitioner info deletion:", pracInfoData);
+  const session = await startSession();
+  session.startTransaction();
   try {
-    await PractitionerInfoModel.findOneAndDelete({ _id: pracInfoData._id });
+    const deletedPracInfo = await PractitionerInfoModel.findOneAndDelete(
+      {
+        _id: pracInfoData._id,
+      },
+      {
+        session,
+      }
+    );
+
+    if (!deletedPracInfo) {
+      logger.error(
+        `No practitioner info found for ID: ${pracInfoData.toObject().id}`
+      );
+      return;
+    }
+    logger.info(
+      `Practitioner info deleted successfully: ${deletedPracInfo._id}`
+    );
+    const subCategories = [deletedPracInfo.sub_category];
+
+    deletedPracInfo.field_of_practice.forEach((field) => {
+      if (field.specialized_filed) {
+        subCategories.push(field.specialized_filed);
+      }
+    });
+    logger.debug("Subcategories to remove:", subCategories);
+    
+    // Remove the practitioner info from FindProfessionModel
+    const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
+      {
+        practitioner: deletedPracInfo.practitioner,
+      },
+      {
+        $set: {
+          practitioner_name: "",
+          prac_category: "",
+          area_of_practice: "",
+          list_of_degrees: "",
+        },
+        $pull: {
+          prac_sub_category: { $in: subCategories },
+        },
+      },
+      {
+        session,
+      }
+    );
+    if (!updatedFindProfession) {
+      logger.error(
+        `Failed to update FindProfessionModel for deleted practitioner info ID ${deletedPracInfo._id}`
+      );
+      return;
+    }
+    logger.success(
+      "FindProfessionModel updated successfully for deleted practitioner info:"
+    );
   } catch (error) {
+    await session.abortTransaction();
     logger.error("Error handling practitioner deletion:", error);
+  } finally {
+    session.endSession();
   }
 };
 
