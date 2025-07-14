@@ -16,6 +16,13 @@ const userSchema: Schema<IUser> = new Schema(
       ref: "Organization",
       default: null,
     },
+    branch: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "BranchInfo",
+        default: null,
+      },
+    ],
   },
   {
     timestamps: true,

@@ -50,6 +50,9 @@ findProfessionSchema.index({ type: 1 });
 findProfessionSchema.index({ username: 1 });
 findProfessionSchema.index({ organization: 1 });
 findProfessionSchema.index({ practitioner: 1 });
+findProfessionSchema.index({ address: 1 });
+findProfessionSchema.index({ city: 1 });
+findProfessionSchema.index({ zone: 1 });
 
 export const FindProfessionModel = model(
   "FindProfession",

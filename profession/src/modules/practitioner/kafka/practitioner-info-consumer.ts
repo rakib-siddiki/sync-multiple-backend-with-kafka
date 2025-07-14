@@ -1,6 +1,5 @@
-import { TOPICS } from "@/constant/topics";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
-import { startSession } from "mongoose";
+import { startSession, type ClientSession } from "mongoose";
 import { PractitionerInfoModel } from "../models/practitioner-info.model";
 import type { IPractitionerInfo } from "../types/practitioner-info.type";
 import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
@@ -126,15 +125,23 @@ const handlePracInfoUpdate = async (pracInfoData: IPractitionerInfo) => {
   }
 };
 
-const handlePracInfoDelete = async (pracInfoData: IPractitionerInfo) => {
-  logger.debug("Handling practitioner info deletion:", pracInfoData);
-  const session = await startSession();
-  session.startTransaction();
+export const handlePracInfoDelete = async ({
+  practitionerInfoId,
+  practitionerId,
+  session = null,
+}: {
+  practitionerInfoId?: string;
+  practitionerId?: string;
+  session: ClientSession | null;
+}) => {
+  const isSessionProvided = session !== null;
+  if (!isSessionProvided) {
+    session = await startSession();
+    session.startTransaction();
+  }
   try {
     const deletedPracInfo = await PractitionerInfoModel.findOneAndDelete(
-      {
-        _id: pracInfoData._id,
-      },
+      { $or: [{ _id: practitionerInfoId }, { practitioner: practitionerId }] },
       {
         session,
       }
@@ -142,7 +149,7 @@ const handlePracInfoDelete = async (pracInfoData: IPractitionerInfo) => {
 
     if (!deletedPracInfo) {
       logger.error(
-        `No practitioner info found for ID: ${pracInfoData.toObject().id}`
+        `No practitioner info found for practitioner ID: ${practitionerId}`
       );
       return;
     }
@@ -157,24 +164,26 @@ const handlePracInfoDelete = async (pracInfoData: IPractitionerInfo) => {
       }
     });
     logger.debug("Subcategories to remove:", subCategories);
-    
+
     // Remove the practitioner info from FindProfessionModel
     const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
       {
         practitioner: deletedPracInfo.practitioner,
       },
       {
-        $set: {
+        $unset: {
           practitioner_name: "",
           prac_category: "",
           area_of_practice: "",
           list_of_degrees: "",
+          practitioner: null,
         },
         $pull: {
           prac_sub_category: { $in: subCategories },
         },
       },
       {
+        new: true,
         session,
       }
     );
@@ -185,18 +194,17 @@ const handlePracInfoDelete = async (pracInfoData: IPractitionerInfo) => {
       return;
     }
     logger.success(
-      "FindProfessionModel updated successfully for deleted practitioner info:"
+      "FindProfessionModel updated successfully for deleted practitioner info:",
+      updatedFindProfession
     );
   } catch (error) {
-    await session.abortTransaction();
-    logger.error("Error handling practitioner deletion:", error);
-  } finally {
-    session.endSession();
+    throw new Error(
+      `Error handling practitioner info deletion for practitioner ID ${practitionerId}: ${
+        (error as Error).message
+      }`
+    );
   }
 };
-
-export type TPracTopic =
-  (typeof TOPICS.PRAC_INFO)[keyof typeof TOPICS.PRAC_INFO];
 
 export const pracInfoConsumer = async (
   operation: TDbOperation,
@@ -210,8 +218,7 @@ export const pracInfoConsumer = async (
       await handlePracInfoUpdate(pracInfoData);
       break;
     case DB_OPERATION.DELETE:
-      await handlePracInfoDelete(pracInfoData);
-      break;
+      return;
     default:
       console.warn(`Unhandled operation: ${operation}`);
   }

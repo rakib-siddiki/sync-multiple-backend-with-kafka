@@ -1,4 +1,4 @@
-import { TOPICS } from "@/constant/topics";
+
 import { UserModel } from "../models/user.model";
 import type { IUser } from "../types/user.type";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
@@ -6,7 +6,6 @@ import { DB_OPERATION, type TDbOperation } from "@/constant/db-operation";
 import { logger } from "@/utils/logger";
 import { startSession } from "mongoose";
 
-export type TUserTopic = (typeof TOPICS.USER)[keyof typeof TOPICS.USER];
 
 const handleUserCreate = async (userData: IUser) => {
   const session = await startSession();

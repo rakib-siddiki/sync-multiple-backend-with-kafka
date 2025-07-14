@@ -1,4 +1,4 @@
-import { branchConsumer } from "@/modules/branch/kafka/branch-consumer";
+import { branchInfoConsumer } from "@/modules/branch/kafka/branch-info-consumer";
 import { userConsumer } from "@/modules/user/kafka/user-consumer";
 import { kafkaConsumerClient } from "./kafka-consumer";
 import { orgConsumer } from "@/modules/organization/kafka/organization-consumer";
@@ -56,11 +56,11 @@ const logConsumerOperation = (
 
 // Collection to consumer mapping
 const COLLECTION_CONSUMER_MAP = {
-  branches: branchConsumer,
   users: userConsumer,
   organizations: orgConsumer,
   practitioners: pracConsumer,
   practitionerinfos: pracInfoConsumer,
+  branchinfos: branchInfoConsumer,
   // Add more collection mappings as needed
 };
 

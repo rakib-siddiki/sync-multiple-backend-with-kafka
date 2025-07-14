@@ -12,6 +12,7 @@ export class DatabaseWatcherService {
   private messageBuffer: KafkaMessage[] = [];
   private flushTimer: NodeJS.Timeout | null = null;
   private reconnectAttempts: number = 0;
+  private isFlushing: boolean = false; // Add lock for batch sending
 
   constructor(config: WatcherConfig) {
     this.config = config;
@@ -159,13 +160,12 @@ export class DatabaseWatcherService {
   }
 
   private async flushMessageBuffer(): Promise<void> {
-    if (this.messageBuffer.length === 0) {
+    if (this.isFlushing || this.messageBuffer.length === 0) {
       return;
     }
-
+    this.isFlushing = true;
     const messages = [...this.messageBuffer];
     this.messageBuffer = [];
-
     try {
       await this.kafkaProducer.sendBatch(messages);
       this.logger.debug(`Flushed ${messages.length} messages to Kafka`);
@@ -177,6 +177,8 @@ export class DatabaseWatcherService {
       // Put messages back in buffer for retry
       this.messageBuffer.unshift(...messages);
       throw error;
+    } finally {
+      this.isFlushing = false;
     }
   }
 

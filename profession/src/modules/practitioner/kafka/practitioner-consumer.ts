@@ -1,4 +1,3 @@
-import { TOPICS } from "@/constant/topics";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 
 import { PractitionerModel } from "../models/practitioner.model";
@@ -9,6 +8,7 @@ import { logger } from "@/utils/logger";
 import { startSession } from "mongoose";
 import { UserModel } from "@/modules/user/models/user.model";
 import { FIND_PROFESSION_TYPE } from "@/modules/find-profession/constant";
+import { handlePracInfoDelete } from "./practitioner-info-consumer";
 
 const handlePracCreate = async (pracData: IPractitioner) => {
   logger.debug("Handling practitioner creation:", pracData);
@@ -141,23 +141,11 @@ const handlePracDelete = async (pracData: IPractitioner) => {
       deletedPrac._id
     );
 
-    logger.success("Practitioner deleted successfully:", deletedPrac._id);
-    // Remove the practitioner reference from the FindProfessionModel
-    const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
-      { practitioner: deletedPrac._id },
-      { $set: { practitioner_name: "", organization: null } },
-      { new: true, session }
-    );
-    if (!updatedFindProfession) {
-      logger.error(
-        `Failed to update FindProfessionModel for deleted practitioner ID ${deletedPrac._id}`
-      );
-      return;
-    }
-    logger.success(
-      "FindProfessionModel updated successfully:",
-      updatedFindProfession
-    );
+    await handlePracInfoDelete({
+      practitionerId: deletedPrac._id.toString(),
+      session,
+    });
+
     await session.commitTransaction();
   } catch (error) {
     await session.abortTransaction();
@@ -167,7 +155,6 @@ const handlePracDelete = async (pracData: IPractitioner) => {
   }
 };
 
-export type TPracTopic = (typeof TOPICS.PRAC)[keyof typeof TOPICS.PRAC];
 
 export const pracConsumer = async (
   operation: TDbOperation,

@@ -1,4 +1,4 @@
-import { TOPICS } from "@/constant/topics";
+
 import type { IOrganization } from "../types/organization.types";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 import { OrganizationModel } from "../models/organization.model";
@@ -181,7 +181,6 @@ const handleOrgDelete = async (orgData: IOrganization) => {
   }
 };
 
-export type TOrgTopic = (typeof TOPICS.ORG)[keyof typeof TOPICS.ORG];
 
 export const orgConsumer = async (
   operation: TDbOperation,
