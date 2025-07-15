@@ -6,6 +6,10 @@ import { BranchInfoModel } from "../models/branch-info.model";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 import { UserModel } from "@/modules/user/models/user.model";
 import { InvitedPractitionerModel } from "@/modules/practitioner/models/invited-practitioner.model";
+import { withDLQ, kafkaDLQ } from "@/config/kafka-dlq";
+
+// Topic name constant for DLQ - use the same one consistently
+const BRANCH_INFO_TOPIC = "database.changes.branchinfos";
 
 const handleBranchInfoCreate = async (branchInfoData: IBranchInfo) => {
   logger.debug("Handling branch info creation:", branchInfoData);
@@ -107,11 +111,22 @@ const handleBranchInfoCreate = async (branchInfoData: IBranchInfo) => {
       );
 
       if (!updated) {
+        const error = new Error(
+          "Failed to update find profession with invited branches"
+        );
         logger.error(
           "Failed to update find profession with invited branches:",
           {
             practitioner: createdBranchInfo.practitioner,
           }
+        );
+
+        // Record the error in DLQ but continue execution
+        await kafkaDLQ.sendToDLQ(
+          BRANCH_INFO_TOPIC,
+          error,
+          { value: createdBranchInfo },
+          { userIds, operation: "create_invited_branches" }
         );
         return;
       }
@@ -209,6 +224,25 @@ const handleBranchInfoUpdate = async (branchInfoData: IBranchInfo) => {
           session,
         }
       );
+
+      if (!updated) {
+        const error = new Error(
+          "Failed to update find profession with invited branches on branch update"
+        );
+        logger.error(
+          "Failed to update find profession with invited branches on branch update:",
+          {
+            practitioner: updatedBranchInfo.practitioner,
+          }
+        );
+        // Even though we're handling this gracefully, we still want to record the error in DLQ
+        await kafkaDLQ.sendToDLQ(
+          BRANCH_INFO_TOPIC,
+          error,
+          { value: updatedBranchInfo },
+          { userIds, operation: "update_invited_branches" }
+        );
+      }
     }
     await session.commitTransaction();
   } catch (err) {
@@ -354,19 +388,33 @@ const handleBranchInfoDelete = async (branchId: string) => {
   }
 };
 
+// Wrap handlers with DLQ error handling
+const safeHandleBranchInfoCreate = withDLQ(
+  BRANCH_INFO_TOPIC,
+  handleBranchInfoCreate
+);
+const safeHandleBranchInfoUpdate = withDLQ(
+  BRANCH_INFO_TOPIC,
+  handleBranchInfoUpdate
+);
+const safeHandleBranchInfoDelete = withDLQ(
+  BRANCH_INFO_TOPIC,
+  handleBranchInfoDelete
+);
+
 export const branchInfoConsumer = async (
   operation: TDbOperation,
   branchInfoData: IBranchInfo
 ) => {
   switch (operation) {
     case DB_OPERATION.INSERT:
-      await handleBranchInfoCreate(branchInfoData);
+      await safeHandleBranchInfoCreate(branchInfoData);
       break;
     case DB_OPERATION.UPDATE:
-      await handleBranchInfoUpdate(branchInfoData);
+      await safeHandleBranchInfoUpdate(branchInfoData);
       break;
     case DB_OPERATION.DELETE:
-      await handleBranchInfoDelete(branchInfoData._id);
+      await safeHandleBranchInfoDelete(branchInfoData._id);
       break;
     // Add more cases for other topics as needed
     default:

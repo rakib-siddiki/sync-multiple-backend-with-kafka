@@ -8,6 +8,7 @@ import { pracInfoConsumer } from "@/modules/practitioner/kafka/practitioner-info
 import { DB_OPERATION } from "@/constant/db-operation";
 import { logger } from "@/utils/logger";
 import { invitedPracConsumer } from "@/modules/practitioner/kafka/invited-practitioner.consumer";
+import { kafkaDLQ } from "./kafka-dlq";
 
 const consumer = kafkaConsumerClient.consumer({
   groupId: process.env.KAFKA_CONSUMER_GROUP_ID!,
@@ -134,9 +135,30 @@ export const mainConsumer = async () => {
           dataForConsumer,
           "success"
         );
-      } catch (error) {
-        logger.error("processing database change event:", error);
+      } catch (error: any) {
+        logger.error("Error processing database change event:", error);
+
+        // Send to Dead Letter Queue
+        await kafkaDLQ.sendToDLQ(
+          DATABASE_TOPIC,
+          error,
+          {
+            key: message.key?.toString() || null,
+            value: message.value?.toString() || null,
+          },
+          {
+            collection: message.value
+              ? JSON.parse(message.value.toString())?.collection
+              : "unknown",
+            operationType: message.value
+              ? JSON.parse(message.value.toString())?.operationType
+              : "unknown",
+          }
+        );
       }
     },
   });
+
+  // Initialize DLQ on consumer start
+  await kafkaDLQ.initialize();
 };
