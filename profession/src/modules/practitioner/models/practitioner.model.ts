@@ -18,7 +18,6 @@ const PractitionerSchema = new Schema(
       default: null,
     },
     user: { type: Types.ObjectId, ref: "User", default: null },
-    branch: { type: Types.ObjectId, ref: "Branch", default: null },
   },
   { timestamps: true }
 );

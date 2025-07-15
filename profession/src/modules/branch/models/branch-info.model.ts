@@ -9,6 +9,7 @@ const branchInfoSchema = new Schema<IBranchInfo>(
     organization: { type: Types.ObjectId, ref: "Organization", default: null },
     practitioner: { type: Types.ObjectId, ref: "Practitioner", default: null },
     user: { type: Types.ObjectId, ref: "User", default: null },
+    branch: { type: Types.ObjectId, ref: "User", default: null },
   },
   { timestamps: true }
 );

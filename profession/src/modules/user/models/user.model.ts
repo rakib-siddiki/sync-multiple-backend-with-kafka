@@ -11,6 +11,7 @@ const userSchema: Schema<IUser> = new Schema(
       ref: "Practitioner",
       default: null,
     },
+
     organization: {
       type: Schema.Types.ObjectId,
       ref: "Organization",
@@ -23,6 +24,11 @@ const userSchema: Schema<IUser> = new Schema(
         default: null,
       },
     ],
+    invitedPractitioner: {
+      type: Schema.Types.ObjectId,
+      ref: "InvitedPractitioner",
+      default: null,
+    },
   },
   {
     timestamps: true,

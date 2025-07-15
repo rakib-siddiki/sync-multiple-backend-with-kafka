@@ -1,8 +1,9 @@
 import { model, Schema, Types } from "mongoose";
+import type { IInvitedPractitioner } from "../types/invited-practitioner.type";
 
 const statusEnum = ["active", "pending", "removed", "hold"];
 
-const InvitedPractitionerSchema = new Schema(
+const InvitedPractitionerSchema = new Schema<IInvitedPractitioner>(
   {
     full_name: { type: String, default: "" },
     email: { type: String, default: "" },
@@ -33,7 +34,7 @@ const InvitedPractitionerSchema = new Schema(
   { timestamps: true }
 );
 
-export const InvitedPractitionerModel = model(
+export const InvitedPractitionerModel = model<IInvitedPractitioner>(
   "InvitedPractitioner",
   InvitedPractitionerSchema
 );

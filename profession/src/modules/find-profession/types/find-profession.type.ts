@@ -26,4 +26,5 @@ export interface IFindProfession {
   city: string[];
   address: string[];
   area_of_practice: string;
+  branchInfo: ObjectId | null; // Reference to BranchInfo model
 }

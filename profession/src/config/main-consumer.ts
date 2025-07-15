@@ -1,4 +1,5 @@
 import { branchInfoConsumer } from "@/modules/branch/kafka/branch-info-consumer";
+import { branchConsumer } from "@/modules/branch/kafka/branch-consumer";
 import { userConsumer } from "@/modules/user/kafka/user-consumer";
 import { kafkaConsumerClient } from "./kafka-consumer";
 import { orgConsumer } from "@/modules/organization/kafka/organization-consumer";
@@ -6,6 +7,7 @@ import { pracConsumer } from "@/modules/practitioner/kafka/practitioner-consumer
 import { pracInfoConsumer } from "@/modules/practitioner/kafka/practitioner-info-consumer";
 import { DB_OPERATION } from "@/constant/db-operation";
 import { logger } from "@/utils/logger";
+import { invitedPracConsumer } from "@/modules/practitioner/kafka/invited-practitioner.consumer";
 
 const consumer = kafkaConsumerClient.consumer({
   groupId: process.env.KAFKA_CONSUMER_GROUP_ID!,
@@ -61,6 +63,8 @@ const COLLECTION_CONSUMER_MAP = {
   practitioners: pracConsumer,
   practitionerinfos: pracInfoConsumer,
   branchinfos: branchInfoConsumer,
+  branches: branchConsumer,
+  invitedpractitioners: invitedPracConsumer,
   // Add more collection mappings as needed
 };
 

@@ -5,6 +5,7 @@ import { startSession } from "mongoose";
 import { BranchInfoModel } from "../models/branch-info.model";
 import { FindProfessionModel } from "@/modules/find-profession/models/find-profession.model";
 import { UserModel } from "@/modules/user/models/user.model";
+import { InvitedPractitionerModel } from "@/modules/practitioner/models/invited-practitioner.model";
 
 const handleBranchInfoCreate = async (branchInfoData: IBranchInfo) => {
   logger.debug("Handling branch info creation:", branchInfoData);
@@ -19,7 +20,30 @@ const handleBranchInfoCreate = async (branchInfoData: IBranchInfo) => {
       return;
     }
     logger.success("Branch info created successfully:", createdBranchInfo);
+    // Update UserModel with the new branch info
+    const updatedUser = await UserModel.findOneAndUpdate(
+      {
+        $or: [
+          { practitioner: createdBranchInfo.practitioner },
+          { organization: createdBranchInfo.organization },
+        ],
+      },
+      {
+        $set: {
+          branch: createdBranchInfo._id,
+        },
+      }
+    );
 
+    if (!updatedUser) {
+      logger.error("Failed to update user with branch info:", {
+        practitioner: createdBranchInfo.practitioner,
+        organization: createdBranchInfo.organization,
+      });
+      return;
+    }
+
+    logger.success("User Linked successfully with branch info:", updatedUser);
     const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
       {
         $or: [
@@ -29,6 +53,7 @@ const handleBranchInfoCreate = async (branchInfoData: IBranchInfo) => {
       },
       {
         $addToSet: {
+          branchInfo: { $each: [createdBranchInfo._id] },
           address: { $each: [createdBranchInfo.address] },
           zone: { $each: [createdBranchInfo.state] },
           city: { $each: [createdBranchInfo.city] },
@@ -51,6 +76,50 @@ const handleBranchInfoCreate = async (branchInfoData: IBranchInfo) => {
       "Find profession updated successfully:",
       updatedFindProfession
     );
+
+    const invitedPractitioners = await InvitedPractitionerModel.find({
+      organization: createdBranchInfo.organization,
+      branches: { $in: [createdBranchInfo.branch] },
+    });
+
+    if (invitedPractitioners.length > 0) {
+      const userIds = invitedPractitioners.map(
+        (invitedPractitioner) => invitedPractitioner.user
+      );
+
+      const updated = await FindProfessionModel.updateMany(
+        {
+          _id: { $in: userIds },
+        },
+        {
+          $addToSet: {
+            branchInfo: { $each: [createdBranchInfo._id] },
+            address: { $each: [createdBranchInfo.address] },
+            zone: { $each: [createdBranchInfo.state] },
+            city: { $each: [createdBranchInfo.city] },
+          },
+        },
+        {
+          new: true,
+          upsert: true,
+          session,
+        }
+      );
+
+      if (!updated) {
+        logger.error(
+          "Failed to update find profession with invited branches:",
+          {
+            practitioner: createdBranchInfo.practitioner,
+          }
+        );
+        return;
+      }
+      logger.success(
+        "Find profession updated successfully with invited branches:",
+        updated
+      );
+    }
 
     await session.commitTransaction();
   } catch (err) {
@@ -78,30 +147,6 @@ const handleBranchInfoUpdate = async (branchInfoData: IBranchInfo) => {
       return;
     }
     logger.success("Branch info updated successfully:", updatedBranchInfo);
-    // Update UserModel with the new branch info
-    const updatedUser = await UserModel.findOneAndUpdate(
-      {
-        $or: [
-          { practitioner: updatedBranchInfo.practitioner },
-          { organization: updatedBranchInfo.organization },
-        ],
-      },
-      {
-        $set: {
-          branch: updatedBranchInfo._id,
-        },
-      }
-    );
-
-    if (!updatedUser) {
-      logger.error("Failed to update user with branch info:", {
-        practitioner: updatedBranchInfo.practitioner,
-        organization: updatedBranchInfo.organization,
-      });
-      return;
-    }
-
-    logger.success("User Linked successfully with branch info:", updatedUser);
 
     // Update FindProfessionModel with new address, zone, city if changed
     const updatedFindProfession = await FindProfessionModel.findOneAndUpdate(
@@ -136,6 +181,35 @@ const handleBranchInfoUpdate = async (branchInfoData: IBranchInfo) => {
       updatedFindProfession
     );
 
+    const invitedPractitioners = await InvitedPractitionerModel.find({
+      organization: updatedBranchInfo.organization,
+      branches: { $in: [updatedBranchInfo.branch] },
+    });
+
+    if (invitedPractitioners.length > 0) {
+      const userIds = invitedPractitioners.map(
+        (invitedPractitioner) => invitedPractitioner.user
+      );
+
+      const updated = await FindProfessionModel.updateMany(
+        {
+          _id: { $in: userIds },
+        },
+        {
+          $addToSet: {
+            branchInfo: { $each: [updatedBranchInfo._id] },
+            address: { $each: [updatedBranchInfo.address] },
+            zone: { $each: [updatedBranchInfo.state] },
+            city: { $each: [updatedBranchInfo.city] },
+          },
+        },
+        {
+          new: true,
+          upsert: true,
+          session,
+        }
+      );
+    }
     await session.commitTransaction();
   } catch (err) {
     await session.abortTransaction();
@@ -217,7 +291,9 @@ const handleBranchInfoDelete = async (branchId: string) => {
     });
 
     // Build the update object based on what needs to be removed
-    const pullObject: any = {};
+    const pullObject: any = {
+      branchInfo: deletedBranchInfo._id,
+    };
 
     // Only remove values not found in active branches
     if (!activeAddresses.includes(deletedBranchInfo.address)) {

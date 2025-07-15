@@ -7,7 +7,6 @@ const OrganizationSchema = new Schema(
     category: { type: String, default: "" },
     sub_category: { type: String, default: "" },
     user: { type: Types.ObjectId, ref: "User", default: null },
-    branch: { type: Types.ObjectId, ref: "Branch", default: null },
   },
   { timestamps: true }
 );

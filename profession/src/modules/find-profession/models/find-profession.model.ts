@@ -40,6 +40,13 @@ const findProfessionSchema = new Schema<IFindProfession>(
     city: { type: [String], default: [] },
     address: { type: [String], default: [] },
     area_of_practice: { type: String, default: "" },
+    branchInfo: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "BranchInfo",
+        default: null,
+      },
+    ],
   },
   {
     timestamps: true,

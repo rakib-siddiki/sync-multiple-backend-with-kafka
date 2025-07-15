@@ -5,6 +5,7 @@ export type InvitedPractitionerStatus =
   | "hold";
 
 export interface IInvitedPractitioner {
+  _id: string; // ObjectId as string
   full_name: string;
   email: string;
   status: InvitedPractitionerStatus;

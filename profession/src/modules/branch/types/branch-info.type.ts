@@ -6,6 +6,7 @@ export interface IBranchInfo extends Document {
   organization: string | null;
   practitioner: string | null;
   user: string | null;
+  branch: string | null;
   created_at?: Date;
   updated_at?: Date;
 }
