@@ -3,6 +3,7 @@ import { connectDB } from "@/helpers/db-connect";
 import globalRouter from "@modules/routes";
 import { mainConsumer } from "./config/main-consumer";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import { logger } from "./utils/logger";
 
 const app = express();
 app.use(express.json());
@@ -23,7 +24,7 @@ app.use(errorMiddleware);
 connectDB().then(() => {
   const port = process.env.PORT ?? 4000;
   app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    logger.info(`Server running on port ${port}`);
   });
 });
 

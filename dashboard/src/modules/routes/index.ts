@@ -2,7 +2,10 @@ import { Router, type Request, type Response } from "express";
 import { branchRoutes } from "../branch/routes/branch.route";
 import { scheduleRoutes } from "../schedule/routes/schedule.route";
 import { userRoutes } from "../user/routes/user.route";
-import {notificationRoutes} from "../notification/routes/notification.route"
+import { notificationRoutes } from "../notification/routes/notification.route";
+import { practitionerRoute } from "../practitioner/routes/practitioner.route";
+import { organizationRoutes } from "../organization/routes/organization.route";
+
 
 const router = Router();
 
@@ -26,6 +29,14 @@ const moduleRoutes = [
   {
     path: "/notifications",
     module: notificationRoutes,
+  },
+  {
+    path: "/practitioners",
+    module: practitionerRoute,
+  },
+  {
+    path: "/organizations",
+    module: organizationRoutes,
   },
 ];
 

@@ -1,5 +1,11 @@
-const mongoose = require("mongoose");
-const { Schema, Types } = mongoose;
+import { setupChangeStreamWatcher } from "@/utils/change-stream-watcher";
+import { model, Schema, Types } from "mongoose";
+import { IPractitioner } from "../types/practitioner.type";
+import {
+  sendPractitionerCreated,
+  sendPractitionerDeleted,
+  sendPractitionerUpdated,
+} from "../kafka/practitioner-producer";
 
 const PractitionerSchema = new Schema(
   {
@@ -19,7 +25,7 @@ const PractitionerSchema = new Schema(
       default: null,
     },
     user: { type: Types.ObjectId, ref: "User", default: null },
-    branding: { type: Types.ObjectId, ref: "Branding", default: null },
+    branch: { type: Types.ObjectId, ref: "Branch", default: null },
   },
   { timestamps: true }
 );
@@ -29,4 +35,23 @@ PractitionerSchema.index({ practitioner_info: 1 });
 PractitionerSchema.index({ practitioner_account: 1 });
 PractitionerSchema.index({ user: 1 });
 
-module.exports = mongoose.model("Practitioner", PractitionerSchema);
+export const PractitionerModel = model<IPractitioner>(
+  "Practitioner",
+  PractitionerSchema
+);
+
+setupChangeStreamWatcher(PractitionerModel, {
+  onInsert: async (doc) => {
+    console.log("🚀 ~ doc:", doc)
+    sendPractitionerCreated(doc);
+    console.log("Practitioner created:", doc);
+  },
+  onUpdate: async (doc) => {
+    sendPractitionerUpdated(doc);
+    console.log("Practitioner updated:", doc);
+  },
+  onDelete: async ({ _id }) => {
+    sendPractitionerDeleted(_id);
+    console.log("Practitioner deleted:", _id);
+  },
+});

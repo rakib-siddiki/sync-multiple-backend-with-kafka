@@ -1,8 +1,10 @@
 import { Document, type ObjectId } from "mongoose";
 
 export interface IBranch extends Document {
-  name: string;
-  userId: ObjectId; // Assuming userId is a string, change to ObjectId if needed
-  createdAt?: Date;
-  updatedAt?: Date;
+  address: string;
+  organization: ObjectId;
+  practitioner: ObjectId;
+  created_at?: Date;
+  updated_at?: Date;
 }
+

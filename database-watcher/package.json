@@ -1,0 +1,33 @@
+{
+  "name": "database-watcher",
+  "version": "1.0.0",
+  "description": "Generic MongoDB database watcher that produces Kafka messages for document changes",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "watch": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "mongodb",
+    "kafka",
+    "change-streams",
+    "database-watcher"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "kafkajs": "^2.2.4",
+    "mongodb": "^6.3.0",
+    "nodemon": "^3.1.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

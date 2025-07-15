@@ -1,6 +1,13 @@
+import { setupChangeStreamWatcher } from "@/utils/change-stream-watcher";
 import { model, Schema, Types } from "mongoose";
+import {
+  sendPractitionerInfoCreated,
+  sendPractitionerInfoDeleted,
+  sendPractitionerInfoUpdated,
+} from "../kafka/practitioner-info-producer";
+import type { IPractitionerInfo } from "../types/practitioner-info.type";
 
-const PractitionerInfoSchemaExpress = new Schema(
+const PractitionerInfoSchema = new Schema<IPractitionerInfo>(
   {
     category: { type: String, default: "" },
     sub_category: { type: String, default: "" },
@@ -55,6 +62,24 @@ const PractitionerInfoSchemaExpress = new Schema(
   { timestamps: true }
 );
 
-PractitionerInfoSchemaExpress.index({ practitioner: 1 });
+PractitionerInfoSchema.index({ practitioner: 1 });
 
-module.exports = model("PractitionerInfo", PractitionerInfoSchemaExpress);
+export const PractitionerInfoModel = model<IPractitionerInfo>(
+  "PractitionerInfo",
+  PractitionerInfoSchema
+);
+
+setupChangeStreamWatcher(PractitionerInfoModel, {
+  onInsert: async (doc) => {
+    sendPractitionerInfoCreated(doc);
+    console.log("PractitionerInfo created:", doc);
+  },
+  onUpdate: async (doc) => {
+    sendPractitionerInfoUpdated(doc);
+    console.log("PractitionerInfo updated:", doc);
+  },
+  onDelete: async ({ _id }) => {
+    sendPractitionerInfoDeleted(_id);
+    console.log("PractitionerInfo deleted:", _id);
+  },
+});

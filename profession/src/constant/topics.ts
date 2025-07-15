@@ -19,6 +19,27 @@ export const TOPICS = {
     UPDATE: "notification.update",
     DELETE: "notification.delete",
   },
+  ORG: {
+    CREATE: "organization.create",
+    UPDATE: "organization.update",
+    DELETE: "organization.delete",
+  },
+  PRAC: {
+    CREATE: "practitioner.create",
+    UPDATE: "practitioner.update",
+    DELETE: "practitioner.delete",
+  },
+  PRAC_INFO: {
+    CREATE: "practitioner_info.create",
+    UPDATE: "practitioner_info.update",
+    DELETE: "practitioner_info.delete",
+  },
+  // Database change topics from the generic watcher
+  DATABASE: {
+    INSERT: "database.insert",
+    UPDATE: "database.update",
+    DELETE: "database.delete",
+  },
 } as const;
 
 // Recursive type to extract all string values from a nested object
